@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { ActiveFilters } from "./ActiveFilters";
+import { ActiveFilters } from "../../../src/components/ListPage/ActiveFilters";
 import { useRouter, useSearchParams } from "next/navigation";
 import { formatLabel } from "@/lib/utils";
 
@@ -60,7 +60,7 @@ describe("ActiveFilters", () => {
     expect(screen.getByText("STATUS:")).toBeInTheDocument();
     expect(screen.getByText("open")).toBeInTheDocument();
     expect(screen.getByText("closed")).toBeInTheDocument();
-    // 3 badże: główny + 2 dla wartości
+
     expect(screen.getAllByTestId("badge")).toHaveLength(3);
   });
 
