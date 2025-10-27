@@ -13,11 +13,18 @@ jest.mock("./DeviceHistory", () => ({
 }));
 
 jest.mock("@/components/ui/button", () => ({
-  Button: jest.fn(({ children, ...props }: any) => (
-    <button data-testid="button" {...props}>
-      {children}
-    </button>
-  )),
+  Button: jest.fn(
+    ({
+      children,
+      ...props
+    }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+      children: React.ReactNode;
+    }) => (
+      <button data-testid="button" {...props}>
+        {children}
+      </button>
+    )
+  ),
 }));
 
 describe("DevicePageContent", () => {
