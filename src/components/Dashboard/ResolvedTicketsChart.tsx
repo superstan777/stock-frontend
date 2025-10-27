@@ -32,7 +32,10 @@ export const ResolvedTicketsChart = () => {
 
   if (isLoading) {
     return (
-      <Card className="flex justify-center items-center h-48">
+      <Card
+        className="flex justify-center items-center h-48"
+        data-testid="loader"
+      >
         <Loader2 className="animate-spin text-muted-foreground" />
       </Card>
     );
