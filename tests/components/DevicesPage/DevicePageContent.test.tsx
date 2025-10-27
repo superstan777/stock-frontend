@@ -1,14 +1,14 @@
 import React from "react";
 import { render, screen, act } from "@testing-library/react";
-import { DevicePageContent } from "./DevicePageContent";
-import { DeviceForm } from "./DeviceForm";
-import { DeviceHistory } from "./DeviceHistory";
+import { DevicePageContent } from "@/components/DevicesPage/DevicePageContent";
+import { DeviceForm } from "@/components/DevicesPage/DeviceForm";
+import { DeviceHistory } from "@/components/DevicesPage/DeviceHistory";
 
-jest.mock("./DeviceForm", () => ({
+jest.mock("@/components/DevicesPage/DeviceForm", () => ({
   DeviceForm: jest.fn(() => <div data-testid="device-form" />),
 }));
 
-jest.mock("./DeviceHistory", () => ({
+jest.mock("@/components/DevicesPage/DeviceHistory", () => ({
   DeviceHistory: jest.fn(() => <div data-testid="device-history" />),
 }));
 

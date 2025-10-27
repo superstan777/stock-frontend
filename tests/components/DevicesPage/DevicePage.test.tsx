@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import { DevicePage } from "./DevicePage";
-import { DevicePageContent } from "./DevicePageContent";
+import { DevicePage } from "@/components/DevicesPage/DevicePage";
+import { DevicePageContent } from "@/components/DevicesPage/DevicePageContent";
 import { useQuery } from "@tanstack/react-query";
 import type { DeviceRow } from "@/lib/types/devices";
 import type { RelationWithDetails } from "@/lib/types/relations";
@@ -18,11 +18,11 @@ jest.mock("@/lib/api/relations", () => ({
   getRelationsByDevice: jest.fn(),
 }));
 
-jest.mock("./DevicePageContent", () => ({
+jest.mock("@/components/DevicesPage/DevicePageContent", () => ({
   DevicePageContent: jest.fn(() => <div data-testid="device-content" />),
 }));
 
-jest.mock("../EntityNotFound", () => ({
+jest.mock("@/components/EntityNotFound", () => ({
   EntityNotFound: jest.fn(() => <div data-testid="entity-not-found" />),
 }));
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent, within } from "@testing-library/react";
-import { UserCombobox } from "./UserCombobox";
+import { UserCombobox } from "../../../src/components/DevicesPage/UserCombobox";
 import { useQuery } from "@tanstack/react-query";
 import type { UserRow } from "@/lib/types/users";
 

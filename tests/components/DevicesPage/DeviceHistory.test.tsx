@@ -1,15 +1,15 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import { DeviceHistory } from "./DeviceHistory";
-import { DataTable } from "../ListPage/DataTable";
+import { DataTable } from "@/components/ListPage/DataTable";
 import { DEVICE_PAGE_RELATION_COLUMNS } from "@/lib/consts/relations";
 import type { RelationWithDetails } from "@/lib/types/relations";
+import { DeviceHistory } from "@/components/DevicesPage/DeviceHistory";
 
-jest.mock("../ListPage/DataTable", () => ({
+jest.mock("@/components/ListPage/DataTable", () => ({
   DataTable: jest.fn(() => <div data-testid="data-table" />),
 }));
 
-jest.mock("../UsersPage/RelationForm", () => ({
+jest.mock("@/components/UsersPage/RelationForm", () => ({
   RelationForm: jest.fn(() => <div data-testid="relation-form" />),
 }));
 
