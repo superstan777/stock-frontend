@@ -23,7 +23,10 @@ export function DevicePageContent({
         <Button type="submit" form="device-form" disabled={isLoading}>
           {isLoading ? (
             <>
-              <Loader2Icon className="animate-spin mr-2 h-4 w-4" />
+              <Loader2Icon
+                className="animate-spin mr-2 h-4 w-4"
+                data-testid="loader"
+              />
               Please wait
             </>
           ) : (
@@ -31,10 +34,7 @@ export function DevicePageContent({
           )}
         </Button>
       </div>
-
       <DeviceForm device={device} setIsLoading={setIsLoading} />
-
-      {/* Sekcja historii przypisań */}
       <DeviceHistory
         relations={relations}
         deviceId={device.id}
