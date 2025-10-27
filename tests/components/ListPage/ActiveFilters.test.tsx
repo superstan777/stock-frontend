@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { ActiveFilters } from "../../../src/components/ListPage/ActiveFilters";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -13,8 +13,14 @@ jest.mock("@/lib/utils", () => ({
   formatLabel: jest.fn((key: string) => key.toUpperCase()),
 }));
 
+// Typujemy propsy zamiast używać `any`
+interface BadgeProps {
+  children: ReactNode;
+  onRemove?: () => void;
+}
+
 jest.mock("@/components/ui/badge", () => ({
-  Badge: ({ children, onRemove }: any) => (
+  Badge: ({ children, onRemove }: BadgeProps) => (
     <div data-testid="badge" onClick={onRemove}>
       {children}
     </div>

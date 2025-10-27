@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
-import { ResolvedTicketsChart } from "./ResolvedTicketsChart";
-import { ChartBarInteractive } from "../ui/chart-bar-interactive";
+import { ResolvedTicketsChart } from "@/components/Dashboard/ResolvedTicketsChart";
+import { ChartBarInteractive } from "@/components/ui/chart-bar-interactive";
 import { useQuery } from "@tanstack/react-query";
 
 jest.mock("@tanstack/react-query", () => ({
@@ -12,15 +12,15 @@ jest.mock("@/lib/api/tickets", () => ({
   getResolvedTicketsStats: jest.fn(),
 }));
 
-jest.mock("../ui/chart-bar-interactive", () => ({
+jest.mock("@/components/ui/chart-bar-interactive", () => ({
   ChartBarInteractive: jest.fn(() => <div data-testid="chart" />),
 }));
 
-jest.mock("../EmptyComponent", () => ({
+jest.mock("@/components/EmptyComponent", () => ({
   EmptyComponent: jest.fn(() => <div data-testid="empty" />),
 }));
 
-jest.mock("../ErrorComponent", () => ({
+jest.mock("@/components/ErrorComponent", () => ({
   ErrorComponent: jest.fn(() => <div data-testid="error" />),
 }));
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
-import { NewTicketsTable } from "./NewTicketsTable";
+import { NewTicketsTable } from "@/components/Dashboard/NewTicketsTable";
 import { DataTable } from "@/components/ListPage/DataTable";
 import { TICKET_COLUMNS } from "@/lib/consts/tickets";
 import { useQuery } from "@tanstack/react-query";
