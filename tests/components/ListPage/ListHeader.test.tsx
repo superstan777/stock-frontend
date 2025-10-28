@@ -1,20 +1,20 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import { ListHeader } from "./ListHeader";
+import { ListHeader } from "@/components/ListPage/ListHeader";
 
-jest.mock("./FormDialog", () => ({
+jest.mock("@/components/ListPage/FormDialog", () => ({
   FormDialog: jest.fn(() => <div data-testid="form-dialog" />),
 }));
 
-jest.mock("./SearchControls", () => ({
+jest.mock("@/components/ListPage/SearchControls", () => ({
   SearchControls: jest.fn(() => <div data-testid="search-controls" />),
 }));
 
-jest.mock("./ActiveFilters", () => ({
+jest.mock("@/components/ListPage/ActiveFilters", () => ({
   ActiveFilters: jest.fn(() => <div data-testid="active-filters" />),
 }));
 
-jest.mock("../ui/button", () => ({
+jest.mock("@/components/ui/button", () => ({
   Button: ({
     children,
     ...props

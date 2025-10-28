@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import { PaginationControls } from "./PaginationControls";
+import { PaginationControls } from "@/components/ListPage/PaginationControls";
 
 const pushMock = jest.fn();
 

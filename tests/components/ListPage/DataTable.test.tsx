@@ -1,10 +1,10 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { DataTable } from "./DataTable";
+import { DataTable } from "@/components/ListPage/DataTable";
 import type { RelationWithDetails } from "@/lib/types/relations";
 import type { ColumnOption } from "@/lib/types/table";
 
-jest.mock("../EndRelationDialog", () => ({
+jest.mock("@/components//EndRelationDialog", () => ({
   EndRelationDialog: jest.fn(() => <div data-testid="end-relation-dialog" />),
 }));
 

@@ -1,19 +1,17 @@
 import React from "react";
-import { render, screen, fireEvent, act } from "@testing-library/react";
-import { FormDialog } from "./FormDialog";
-import { DeviceForm } from "../DevicesPage/DeviceForm";
-import { UserForm } from "../UsersPage/UserForm";
-import { AddTicketForm } from "../TicketPage/AddTicketForm";
+import { render, screen, act } from "@testing-library/react";
+import { FormDialog } from "@/components/ListPage/FormDialog";
+import { DeviceForm } from "@/components/DevicesPage/DeviceForm";
 
-jest.mock("../DevicesPage/DeviceForm", () => ({
+jest.mock("@/components/DevicesPage/DeviceForm", () => ({
   DeviceForm: jest.fn(() => <div data-testid="device-form" />),
 }));
 
-jest.mock("../UsersPage/UserForm", () => ({
+jest.mock("@/components/UsersPage/UserForm", () => ({
   UserForm: jest.fn(() => <div data-testid="user-form" />),
 }));
 
-jest.mock("../TicketPage/AddTicketForm", () => ({
+jest.mock("@/components/TicketPage/AddTicketForm", () => ({
   AddTicketForm: jest.fn(() => <div data-testid="ticket-form" />),
 }));
 

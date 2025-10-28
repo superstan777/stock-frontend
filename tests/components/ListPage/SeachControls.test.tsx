@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { SearchControls } from "./SearchControls";
+import { SearchControls } from "@/components/ListPage/SearchControls";
 import type { ColumnOption } from "@/lib/types/table";
 
 const pushMock = jest.fn();

@@ -1,20 +1,20 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import ListPage from "./ListPage";
-import { DataTable } from "./DataTable";
-import { ListHeader } from "./ListHeader";
-import { PaginationControls } from "./PaginationControls";
+import ListPage from "@/components/ListPage/ListPage";
+import { DataTable } from "@/components/ListPage/DataTable";
+import { ListHeader } from "@/components/ListPage/ListHeader";
+import { PaginationControls } from "@/components/ListPage/PaginationControls";
 import type { ColumnOption, EntityData } from "@/lib/types/table";
 
-jest.mock("./DataTable", () => ({
+jest.mock("@/components/ListPage/DataTable", () => ({
   DataTable: jest.fn(() => <div data-testid="data-table" />),
 }));
 
-jest.mock("./ListHeader", () => ({
+jest.mock("@/components/ListPage/ListHeader", () => ({
   ListHeader: jest.fn(() => <div data-testid="list-header" />),
 }));
 
-jest.mock("./PaginationControls", () => ({
+jest.mock("@/components/ListPage/PaginationControls", () => ({
   PaginationControls: jest.fn(() => <div data-testid="pagination-controls" />),
 }));
 
