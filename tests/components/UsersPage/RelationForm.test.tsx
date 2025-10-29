@@ -3,35 +3,47 @@ import { RelationForm } from "@/components/UsersPage/RelationForm";
 import { toast } from "sonner";
 import { createRelation, hasActiveRelation } from "@/lib/api/relations";
 
+// ✅ Mock API
 jest.mock("@/lib/api/relations", () => ({
   createRelation: jest.fn(),
   hasActiveRelation: jest.fn(),
 }));
 
+// ✅ Mock Query Client
 const mockInvalidateQueries = jest.fn();
 jest.mock("@tanstack/react-query", () => {
   const actual = jest.requireActual("@tanstack/react-query");
+
+  interface MockMutationOptions<TData, TError, TVariables> {
+    mutationFn: (variables: TVariables) => Promise<TData> | TData;
+    onSuccess?: (data: TData) => void;
+    onError?: (error: TError) => void;
+  }
+
   return {
     ...actual,
     useQueryClient: () => ({
       invalidateQueries: mockInvalidateQueries,
     }),
-    useMutation: (opts: any) => ({
-      mutate: (data: unknown) => {
-        opts
-          .mutationFn(data)
-          .then(() => opts.onSuccess?.())
-          .catch(() => opts.onError?.());
+    useMutation: <TData, TError, TVariables>(
+      opts: MockMutationOptions<TData, TError, TVariables>
+    ) => ({
+      mutate: (data: TVariables) => {
+        Promise.resolve(opts.mutationFn(data))
+          .then((res) => opts.onSuccess?.(res))
+          .catch((err) => opts.onError?.(err));
       },
       isPending: false,
     }),
   };
 });
 
+// ✅ Mock toastów
 jest.mock("sonner", () => ({
   toast: { success: jest.fn(), error: jest.fn() },
 }));
 
+// ✅ Mock comboboxów i date pickera
 jest.mock("@/components/DevicesPage/UserCombobox", () => ({
   UserCombobox: ({
     value,
@@ -39,7 +51,7 @@ jest.mock("@/components/DevicesPage/UserCombobox", () => ({
     disabled,
   }: {
     value: string | null;
-    onChange: (v: string) => void;
+    onChange: (value: string) => void;
     disabled?: boolean;
   }) => (
     <select
@@ -61,7 +73,7 @@ jest.mock("@/components/UsersPage/DeviceCombobox", () => ({
     disabled,
   }: {
     value: string | null;
-    onChange: (v: string) => void;
+    onChange: (value: string) => void;
     disabled?: boolean;
   }) => (
     <select
@@ -82,7 +94,7 @@ jest.mock("@/components/ui/date-picker", () => ({
     onChange,
   }: {
     value: Date | null;
-    onChange: (v: Date) => void;
+    onChange: (value: Date) => void;
   }) => (
     <input
       data-testid="date-picker"

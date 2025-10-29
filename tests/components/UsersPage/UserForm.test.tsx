@@ -1,8 +1,9 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { UserForm, UserFormProps } from "@/components/UsersPage/UserForm";
+import { UserForm, type UserFormProps } from "@/components/UsersPage/UserForm";
 import { addUser, updateUser } from "@/lib/api/users";
 import { toast } from "sonner";
+import type { UserRow } from "@/lib/types/users";
 
 jest.mock("@/lib/api/users", () => ({
   addUser: jest.fn().mockResolvedValue({}),
@@ -14,20 +15,31 @@ jest.mock("sonner", () => ({
 }));
 
 const mockInvalidateQueries = jest.fn();
+
 jest.mock("@tanstack/react-query", () => {
   const original = jest.requireActual("@tanstack/react-query");
+
+  interface MockUseMutationOptions<TData, TError, TVariables> {
+    mutationFn: (variables: TVariables) => Promise<TData> | TData;
+    onSuccess?: (data: TData) => void;
+    onError?: (error: TError) => void;
+    onSettled?: () => void;
+  }
+
   return {
     ...original,
     useQueryClient: () => ({
       invalidateQueries: mockInvalidateQueries,
     }),
-    useMutation: (opts: any) => ({
-      mutate: async (data: any) => {
+    useMutation: <TData, TError, TVariables>(
+      opts: MockUseMutationOptions<TData, TError, TVariables>
+    ) => ({
+      mutate: async (data: TVariables) => {
         try {
-          await opts.mutationFn(data);
-          opts.onSuccess?.();
+          const result = await opts.mutationFn(data);
+          opts.onSuccess?.(result);
         } catch (error) {
-          opts.onError?.(error);
+          opts.onError?.(error as TError);
         } finally {
           opts.onSettled?.();
         }
@@ -66,7 +78,6 @@ describe("UserForm", () => {
     });
 
     const formElement = screen.getByTestId("user-form");
-
     const submitButton = document.createElement("button");
     submitButton.type = "submit";
     formElement.appendChild(submitButton);
@@ -107,12 +118,13 @@ describe("UserForm", () => {
   });
 
   it("calls updateUser mutation when user prop is passed", async () => {
-    const mockUser = {
+    const mockUser: UserRow = {
       id: "u1",
       name: "Bob",
       email: "bob@test.com",
       created_at: "2025-10-01T00:00:00Z",
     };
+
     render(<UserForm {...defaultProps} user={mockUser} />);
 
     fireEvent.change(screen.getByLabelText("Name"), {

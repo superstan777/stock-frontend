@@ -1,23 +1,43 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { UserPageContent } from "@/components/UsersPage/UserPageContent";
+import type { UserRow } from "@/lib/types/users";
 
 jest.mock("@/components/UsersPage/UserForm", () => ({
-  UserForm: jest.fn(({ user }) => (
+  UserForm: ({
+    user,
+  }: {
+    user: UserRow;
+    setIsLoading: (loading: boolean) => void;
+  }) => (
     <form data-testid="user-form">
       <input name="name" defaultValue={user?.name ?? ""} />
       <input name="email" defaultValue={user?.email ?? ""} />
     </form>
-  )),
+  ),
 }));
 
 jest.mock("@/components/UsersPage/UserTabs", () => ({
-  UserTabs: jest.fn(() => <div data-testid="user-tabs" />),
+  UserTabs: ({ userId }: { userId: string }) => (
+    <div data-testid="user-tabs">{`Tabs for ${userId}`}</div>
+  ),
 }));
 
 jest.mock("@/components/ui/button", () => ({
-  Button: ({ children, ...props }: any) => (
-    <button {...props}>{children}</button>
+  Button: ({
+    children,
+    type,
+    form,
+    disabled,
+  }: {
+    children: React.ReactNode;
+    type?: "button" | "submit" | "reset";
+    form?: string;
+    disabled?: boolean;
+  }) => (
+    <button type={type} form={form} disabled={disabled}>
+      {children}
+    </button>
   ),
 }));
 
@@ -26,7 +46,7 @@ jest.mock("lucide-react", () => ({
 }));
 
 describe("UserPageContent", () => {
-  const mockUser = {
+  const mockUser: UserRow = {
     id: "u1",
     name: "Alice",
     email: "alice@test.com",
@@ -42,7 +62,8 @@ describe("UserPageContent", () => {
   });
 
   it("button triggers form submission", () => {
-    const onSubmitMock = jest.fn((e) => e.preventDefault());
+    const onSubmitMock = jest.fn((e: React.FormEvent) => e.preventDefault());
+
     render(
       <form data-testid="user-form" onSubmit={onSubmitMock}>
         <input name="name" defaultValue={mockUser.name} />

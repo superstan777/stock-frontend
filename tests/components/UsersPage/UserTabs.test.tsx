@@ -4,6 +4,8 @@ import { UserTabs } from "@/components/UsersPage/UserTabs";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { getRelationsByUser } from "@/lib/api/relations";
 import { getUserTickets } from "@/lib/api/tickets";
+import type { RelationWithDetails } from "@/lib/types/relations";
+import type { TicketRow } from "@/lib/types/tickets";
 
 jest.mock("@/lib/api/relations", () => ({
   getRelationsByUser: jest.fn(() => Promise.resolve([{ id: "r1" }])),
@@ -24,27 +26,66 @@ jest.mock("@tanstack/react-query", () => {
 jest.mock("@/components/UsersPage/RelationForm", () => ({
   RelationForm: () => <div data-testid="relation-form" />,
 }));
+
 jest.mock("@/components/UsersPage/UserDevicesList", () => ({
-  UserDevicesList: (props: any) => (
-    <div data-testid="user-devices-list">{JSON.stringify(props)}</div>
+  UserDevicesList: ({
+    userId,
+    relations,
+    isLoading,
+    isError,
+    error,
+  }: {
+    userId: string;
+    relations: RelationWithDetails[];
+    isLoading: boolean;
+    isError: boolean;
+    error: unknown;
+  }) => (
+    <div data-testid="user-devices-list">
+      {JSON.stringify({ userId, relations, isLoading, isError, error })}
+    </div>
   ),
 }));
+
 jest.mock("@/components/UsersPage/UserTicketsList", () => ({
-  UserTicketsList: (props: any) => (
-    <div data-testid="user-tickets-list">{JSON.stringify(props)}</div>
+  UserTicketsList: ({
+    userId,
+    tickets,
+    isLoading,
+    isError,
+    error,
+  }: {
+    userId: string;
+    tickets: TicketRow[];
+    isLoading: boolean;
+    isError: boolean;
+    error: unknown;
+  }) => (
+    <div data-testid="user-tickets-list">
+      {JSON.stringify({ userId, tickets, isLoading, isError, error })}
+    </div>
   ),
 }));
+
 jest.mock("@/components/ui/tabs", () => ({
   Tabs: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   TabsList: ({ children }: { children: React.ReactNode }) => (
     <div>{children}</div>
   ),
-  TabsTrigger: ({ children }: { children: React.ReactNode }) => (
-    <button>{children}</button>
-  ),
-  TabsContent: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
+  TabsTrigger: ({
+    children,
+    value,
+  }: {
+    children: React.ReactNode;
+    value: string;
+  }) => <button data-testid={`tab-${value}`}>{children}</button>,
+  TabsContent: ({
+    children,
+    value,
+  }: {
+    children: React.ReactNode;
+    value: string;
+  }) => <div data-testid={`tab-content-${value}`}>{children}</div>,
 }));
 
 describe("UserTabs", () => {
@@ -81,7 +122,7 @@ describe("UserTabs", () => {
   });
 
   it("renders RelationForm and lists with correct props", () => {
-    mockUseQuery.mockImplementation(({ queryKey }: any) => {
+    mockUseQuery.mockImplementation(({ queryKey }: { queryKey: string[] }) => {
       if (queryKey[0] === "userRelations")
         return {
           data: [{ id: "r1" }],
@@ -101,16 +142,12 @@ describe("UserTabs", () => {
 
     render(<UserTabs userId="u1" />);
     expect(screen.getByTestId("relation-form")).toBeInTheDocument();
-    expect(screen.getByTestId("user-devices-list")).toHaveTextContent(
-      '"id":"r1"'
-    );
-    expect(screen.getByTestId("user-tickets-list")).toHaveTextContent(
-      '"id":"t1"'
-    );
+    expect(screen.getByTestId("user-devices-list")).toHaveTextContent('"r1"');
+    expect(screen.getByTestId("user-tickets-list")).toHaveTextContent('"t1"');
   });
 
   it("handles loading and error states", () => {
-    mockUseQuery.mockImplementation(({ queryKey }: any) => {
+    mockUseQuery.mockImplementation(({ queryKey }: { queryKey: string[] }) => {
       if (queryKey[0] === "userRelations")
         return { data: [], isLoading: true, isError: false, error: null };
       if (queryKey[0] === "userTickets")

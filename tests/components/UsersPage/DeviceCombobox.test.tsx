@@ -3,13 +3,9 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { DeviceCombobox } from "@/components/UsersPage/DeviceCombobox";
 import { useQuery } from "@tanstack/react-query";
 import type { DeviceRow } from "@/lib/types/devices";
+import * as api from "@/lib/api/devices";
 
-const mockGetAllDevices = jest.fn();
-
-jest.mock("@/lib/api/devices", () => ({
-  getAllDevices: jest.fn(),
-}));
-
+jest.mock("@/lib/api/devices");
 jest.mock("@tanstack/react-query", () => ({
   useQuery: jest.fn(),
 }));
@@ -81,15 +77,18 @@ jest.mock("@/components/ui/command", () => ({
   CommandItem: ({
     children,
     onSelect,
+    selected = false,
   }: {
     children: React.ReactNode;
     onSelect?: () => void;
+    selected?: boolean;
   }) => (
     <div
       data-testid="command-item"
       onClick={onSelect}
       role="option"
       tabIndex={0}
+      aria-selected={selected}
     >
       {children}
     </div>
@@ -123,8 +122,7 @@ describe("DeviceCombobox", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    const api = require("@/lib/api/devices");
-    api.getAllDevices.mockImplementation(mockGetAllDevices);
+    (api.getAllDevices as jest.Mock).mockImplementation(jest.fn());
   });
 
   it("renders loading state", () => {
@@ -155,9 +153,9 @@ describe("DeviceCombobox", () => {
     });
 
     render(<DeviceCombobox value="d1" onChange={mockOnChange} />);
-    const matches = screen.getAllByText(/COMPUTER • SN001/);
-    expect(matches.length).toBeGreaterThan(0);
+    expect(screen.getByText(/COMPUTER • SN001/i)).toBeInTheDocument();
   });
+
   it("renders 'No device found' when empty and not loading", () => {
     mockUseQuery.mockReturnValue({
       data: [],
