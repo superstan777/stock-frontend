@@ -72,6 +72,7 @@ export const UserForm: React.FC<UserFormProps> = ({
   return (
     <form
       id="user-form"
+      data-testid="user-form"
       onSubmit={handleSubmit(onSubmit)}
       className="grid gap-4"
     >
