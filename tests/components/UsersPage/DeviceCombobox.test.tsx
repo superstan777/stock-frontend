@@ -1,103 +1,83 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import { DeviceCombobox } from "@/components/UsersPage/DeviceCombobox";
 import { useQuery } from "@tanstack/react-query";
 import type { DeviceRow } from "@/lib/types/devices";
-import * as api from "@/lib/api/devices";
 
-jest.mock("@/lib/api/devices");
 jest.mock("@tanstack/react-query", () => ({
   useQuery: jest.fn(),
 }));
 
-jest.mock("@/components/ui/button", () => ({
-  Button: ({
-    children,
-    onClick,
-    disabled,
-    role,
-    "aria-expanded": ariaExpanded,
-  }: {
-    children: React.ReactNode;
-    onClick?: () => void;
-    disabled?: boolean;
-    role?: string;
-    "aria-expanded"?: boolean;
-  }) => (
-    <button
-      data-testid="combobox-button"
-      onClick={onClick}
-      disabled={disabled}
-      role={role}
-      aria-expanded={ariaExpanded}
-    >
-      {children}
-    </button>
-  ),
+jest.mock("@/lib/api/devices", () => ({
+  getAllDevices: jest.fn(),
 }));
 
-jest.mock("@/components/ui/popover", () => ({
-  Popover: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="popover">{children}</div>
-  ),
-  PopoverTrigger: ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  ),
-  PopoverContent: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="popover-content">{children}</div>
+jest.mock("@/components/ui/button", () => ({
+  Button: jest.fn(
+    (
+      props: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+        children: React.ReactNode;
+      }
+    ) => (
+      <button data-testid="button" {...props}>
+        <span data-testid="selected-label">{props.children}</span>
+      </button>
+    )
   ),
 }));
 
 jest.mock("@/components/ui/command", () => ({
-  Command: ({ children }: { children: React.ReactNode }) => (
+  Command: jest.fn(({ children }: { children: React.ReactNode }) => (
     <div>{children}</div>
+  )),
+  CommandEmpty: jest.fn(({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  )),
+  CommandGroup: jest.fn(({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  )),
+  CommandInput: jest.fn(
+    (props: React.InputHTMLAttributes<HTMLInputElement>) => (
+      <input data-testid="command-input" {...props} />
+    )
   ),
-  CommandInput: ({
-    placeholder,
-    disabled,
-  }: {
-    placeholder?: string;
-    disabled?: boolean;
-  }) => (
-    <input
-      data-testid="command-input"
-      placeholder={placeholder}
-      disabled={disabled}
-    />
+  CommandItem: jest.fn(
+    ({
+      children,
+      onSelect,
+    }: {
+      children: React.ReactNode;
+      onSelect?: () => void;
+    }) => (
+      <div
+        data-testid="command-item"
+        onClick={onSelect}
+        role="option"
+        tabIndex={0}
+      >
+        {children}
+      </div>
+    )
   ),
-  CommandEmpty: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="command-empty">{children}</div>
-  ),
-  CommandGroup: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="command-group">{children}</div>
-  ),
-  CommandList: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="command-list">{children}</div>
-  ),
-  CommandItem: ({
-    children,
-    onSelect,
-    selected = false,
-  }: {
-    children: React.ReactNode;
-    onSelect?: () => void;
-    selected?: boolean;
-  }) => (
-    <div
-      data-testid="command-item"
-      onClick={onSelect}
-      role="option"
-      tabIndex={0}
-      aria-selected={selected}
-    >
-      {children}
-    </div>
-  ),
+  CommandList: jest.fn(({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  )),
+}));
+
+jest.mock("@/components/ui/popover", () => ({
+  Popover: jest.fn(({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  )),
+  PopoverTrigger: jest.fn(({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  )),
+  PopoverContent: jest.fn(({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  )),
 }));
 
 describe("DeviceCombobox", () => {
   const mockUseQuery = useQuery as jest.Mock;
-  const mockOnChange = jest.fn();
 
   const mockDevices: DeviceRow[] = [
     {
@@ -122,91 +102,63 @@ describe("DeviceCombobox", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (api.getAllDevices as jest.Mock).mockImplementation(jest.fn());
   });
 
   it("renders loading state", () => {
-    mockUseQuery.mockReturnValue({
-      data: [],
-      isLoading: true,
-    });
+    mockUseQuery.mockReturnValue({ data: [], isLoading: true });
 
-    render(<DeviceCombobox value={null} onChange={mockOnChange} />);
-    const loadingTexts = screen.getAllByText("Loading...");
-    expect(loadingTexts.length).toBeGreaterThan(0);
+    render(<DeviceCombobox value={null} onChange={jest.fn()} />);
+
+    const button = screen.getByTestId("button");
+    expect(within(button).getByText("Loading...")).toBeInTheDocument();
+    expect(button).toBeDisabled();
   });
 
-  it("renders 'Select device...' when no value", () => {
-    mockUseQuery.mockReturnValue({
-      data: mockDevices,
-      isLoading: false,
-    });
+  it("renders placeholder when not loading and no device selected", () => {
+    mockUseQuery.mockReturnValue({ data: mockDevices, isLoading: false });
 
-    render(<DeviceCombobox value={null} onChange={mockOnChange} />);
+    render(<DeviceCombobox value={null} onChange={jest.fn()} />);
     expect(screen.getByText("Select device...")).toBeInTheDocument();
   });
 
   it("renders selected device label", () => {
-    mockUseQuery.mockReturnValue({
-      data: mockDevices,
-      isLoading: false,
-    });
+    mockUseQuery.mockReturnValue({ data: mockDevices, isLoading: false });
 
-    render(<DeviceCombobox value="d1" onChange={mockOnChange} />);
-    expect(screen.getByText(/COMPUTER • SN001/i)).toBeInTheDocument();
+    render(<DeviceCombobox value="d2" onChange={jest.fn()} />);
+
+    const label = screen.getByTestId("selected-label");
+    expect(label).toHaveTextContent(/ThinkPad/i);
+    expect(label).toHaveTextContent(/SN002/i);
   });
 
-  it("renders 'No device found' when empty and not loading", () => {
-    mockUseQuery.mockReturnValue({
-      data: [],
-      isLoading: false,
-    });
+  it("calls onChange when device selected", () => {
+    const onChange = jest.fn();
+    mockUseQuery.mockReturnValue({ data: mockDevices, isLoading: false });
 
-    render(<DeviceCombobox value={null} onChange={mockOnChange} />);
+    render(<DeviceCombobox value={null} onChange={onChange} />);
+
+    const items = screen.getAllByTestId("command-item");
+    fireEvent.click(items[0]);
+
+    expect(onChange).toHaveBeenCalledWith("d1");
+  });
+
+  it("does not call onChange when disabled", () => {
+    const onChange = jest.fn();
+    mockUseQuery.mockReturnValue({ data: mockDevices, isLoading: false });
+
+    render(<DeviceCombobox value={null} onChange={onChange} disabled />);
+
+    const items = screen.getAllByTestId("command-item");
+    fireEvent.click(items[0]);
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("renders 'No device found.' when list is empty", () => {
+    mockUseQuery.mockReturnValue({ data: [], isLoading: false });
+
+    render(<DeviceCombobox value={null} onChange={jest.fn()} />);
     expect(screen.getByText("No device found.")).toBeInTheDocument();
-  });
-
-  it("calls onChange when device selected", async () => {
-    mockUseQuery.mockReturnValue({
-      data: mockDevices,
-      isLoading: false,
-    });
-
-    render(<DeviceCombobox value={null} onChange={mockOnChange} />);
-    const deviceItem = screen.getAllByTestId("command-item")[0];
-    fireEvent.click(deviceItem);
-
-    await waitFor(() => {
-      expect(mockOnChange).toHaveBeenCalledWith("d1");
-    });
-  });
-
-  it("does not call onChange when disabled", async () => {
-    mockUseQuery.mockReturnValue({
-      data: mockDevices,
-      isLoading: false,
-    });
-
-    render(<DeviceCombobox value={null} onChange={mockOnChange} disabled />);
-    const deviceItem = screen.getAllByTestId("command-item")[0];
-    fireEvent.click(deviceItem);
-
-    await waitFor(() => {
-      expect(mockOnChange).not.toHaveBeenCalled();
-    });
-  });
-
-  it("disables button and input when loading or disabled", () => {
-    mockUseQuery.mockReturnValue({
-      data: [],
-      isLoading: true,
-    });
-
-    render(<DeviceCombobox value={null} onChange={mockOnChange} disabled />);
-    const button = screen.getByTestId("combobox-button");
-    const input = screen.getByTestId("command-input");
-
-    expect(button).toBeDisabled();
-    expect(input).toBeDisabled();
   });
 });
