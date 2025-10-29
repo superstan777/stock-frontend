@@ -3,8 +3,10 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { DataTable } from "@/components/ListPage/DataTable";
 import type { RelationWithDetails } from "@/lib/types/relations";
 import type { ColumnOption } from "@/lib/types/table";
+import { useRouter } from "next/navigation";
 
-jest.mock("@/components//EndRelationDialog", () => ({
+// --- MOCKI ---
+jest.mock("@/components/EndRelationDialog", () => ({
   EndRelationDialog: jest.fn(() => <div data-testid="end-relation-dialog" />),
 }));
 
@@ -17,11 +19,14 @@ jest.mock("@/components/ui/button", () => ({
 }));
 
 jest.mock("next/navigation", () => ({
-  useRouter: jest.fn(() => ({ push: jest.fn() })),
+  useRouter: jest.fn(),
 }));
 
+// --- TESTY ---
 describe("DataTable", () => {
   const mockPush = jest.fn();
+  (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
+
   const columns: ColumnOption<"relation">[] = [
     {
       label: "User",
@@ -61,6 +66,7 @@ describe("DataTable", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
   });
 
   it("renders table headers and data", () => {
@@ -74,12 +80,13 @@ describe("DataTable", () => {
       />
     );
 
+    // Sprawdź nagłówki
     columns.forEach((col) => {
       expect(screen.getByText(col.label)).toBeInTheDocument();
     });
 
+    // Sprawdź dane
     expect(screen.getByText("alice@test.com")).toBeInTheDocument();
-
     expect(screen.getByTestId("end-relation-dialog")).toBeInTheDocument();
   });
 
@@ -111,18 +118,15 @@ describe("DataTable", () => {
       />
     );
 
-    // Sprawdzamy tytuł alertu
     const alertTitle = document.querySelector('[data-slot="alert-title"]');
     expect(alertTitle).toHaveTextContent("Failed to load data");
 
-    // Sprawdzamy opis alertu
     const alertDescription = document.querySelector(
       '[data-slot="alert-description"]'
     );
     expect(alertDescription).toHaveTextContent(mockError.message);
 
-    const button = screen.getByText("Try Again");
-    expect(button).toBeInTheDocument();
+    expect(screen.getByText("Try Again")).toBeInTheDocument();
   });
 
   it("renders empty state when no data", () => {
@@ -140,9 +144,6 @@ describe("DataTable", () => {
   });
 
   it("calls router.push when clicking a cell with route", () => {
-    const { useRouter } = require("next/navigation");
-    useRouter.mockReturnValue({ push: mockPush });
-
     render(
       <DataTable
         data={mockRelations}
