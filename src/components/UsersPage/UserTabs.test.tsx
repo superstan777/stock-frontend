@@ -1,0 +1,134 @@
+import React from "react";
+import { render, screen } from "@testing-library/react";
+import { UserTabs } from "./UserTabs";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { getRelationsByUser } from "@/lib/api/relations";
+import { getUserTickets } from "@/lib/api/tickets";
+
+jest.mock("@/lib/api/relations", () => ({
+  getRelationsByUser: jest.fn(() => Promise.resolve([{ id: "r1" }])),
+}));
+jest.mock("@/lib/api/tickets", () => ({
+  getUserTickets: jest.fn(() => Promise.resolve({ data: [{ id: "t1" }] })),
+}));
+
+jest.mock("@tanstack/react-query", () => {
+  const original = jest.requireActual("@tanstack/react-query");
+  return {
+    ...original,
+    useQueryClient: jest.fn(),
+    useQuery: jest.fn(),
+  };
+});
+
+jest.mock("./RelationForm", () => ({
+  RelationForm: () => <div data-testid="relation-form" />,
+}));
+jest.mock("./UserDevicesList", () => ({
+  UserDevicesList: (props: any) => (
+    <div data-testid="user-devices-list">{JSON.stringify(props)}</div>
+  ),
+}));
+jest.mock("./UserTicketsList", () => ({
+  UserTicketsList: (props: any) => (
+    <div data-testid="user-tickets-list">{JSON.stringify(props)}</div>
+  ),
+}));
+jest.mock("@/components/ui/tabs", () => ({
+  Tabs: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  TabsList: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  TabsTrigger: ({ children }: { children: React.ReactNode }) => (
+    <button>{children}</button>
+  ),
+  TabsContent: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+}));
+
+describe("UserTabs", () => {
+  const mockQueryClient = { prefetchQuery: jest.fn() };
+  const mockUseQuery = useQuery as jest.Mock;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (useQueryClient as jest.Mock).mockReturnValue(mockQueryClient);
+  });
+
+  it("prefetches and triggers query functions manually", async () => {
+    mockUseQuery.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+
+    render(<UserTabs userId="u1" />);
+
+    expect(mockQueryClient.prefetchQuery).toHaveBeenCalledTimes(2);
+
+    for (const call of mockQueryClient.prefetchQuery.mock.calls) {
+      await call[0].queryFn();
+    }
+
+    for (const call of mockUseQuery.mock.calls) {
+      if (call[0]?.queryFn) await call[0].queryFn();
+    }
+
+    expect(getRelationsByUser).toHaveBeenCalledWith("u1");
+    expect(getUserTickets).toHaveBeenCalledWith("u1");
+  });
+
+  it("renders RelationForm and lists with correct props", () => {
+    mockUseQuery.mockImplementation(({ queryKey }: any) => {
+      if (queryKey[0] === "userRelations")
+        return {
+          data: [{ id: "r1" }],
+          isLoading: false,
+          isError: false,
+          error: null,
+        };
+      if (queryKey[0] === "userTickets")
+        return {
+          data: { data: [{ id: "t1" }] },
+          isLoading: false,
+          isError: false,
+          error: null,
+        };
+      return { data: [], isLoading: false, isError: false, error: null };
+    });
+
+    render(<UserTabs userId="u1" />);
+    expect(screen.getByTestId("relation-form")).toBeInTheDocument();
+    expect(screen.getByTestId("user-devices-list")).toHaveTextContent(
+      '"id":"r1"'
+    );
+    expect(screen.getByTestId("user-tickets-list")).toHaveTextContent(
+      '"id":"t1"'
+    );
+  });
+
+  it("handles loading and error states", () => {
+    mockUseQuery.mockImplementation(({ queryKey }: any) => {
+      if (queryKey[0] === "userRelations")
+        return { data: [], isLoading: true, isError: false, error: null };
+      if (queryKey[0] === "userTickets")
+        return {
+          data: [],
+          isLoading: false,
+          isError: true,
+          error: "Ticket error",
+        };
+      return { data: [], isLoading: false, isError: false, error: null };
+    });
+
+    render(<UserTabs userId="u1" />);
+    expect(screen.getByTestId("user-devices-list")).toHaveTextContent(
+      '"isLoading":true'
+    );
+    expect(screen.getByTestId("user-tickets-list")).toHaveTextContent(
+      '"isError":true'
+    );
+  });
+});

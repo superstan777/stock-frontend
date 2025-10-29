@@ -17,7 +17,6 @@ interface UserTabsProps {
 export function UserTabs({ userId }: UserTabsProps) {
   const queryClient = useQueryClient();
 
-  // Prefetch danych
   useEffect(() => {
     if (!userId) return;
 
@@ -32,7 +31,6 @@ export function UserTabs({ userId }: UserTabsProps) {
     });
   }, [userId, queryClient]);
 
-  // Pobieramy dane
   const relationsQuery = useQuery<RelationWithDetails[]>({
     queryKey: ["userRelations", userId],
     queryFn: () => getRelationsByUser(userId),
