@@ -1,9 +1,10 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { TicketPageContent } from "./TicketPageContent";
-import type { TicketWithUsers } from "@/lib/types/tickets";
+import { TicketPageContent } from "@/components/TicketPage/TicketPageContent";
+import type { TicketWithUsers, TicketUpdate } from "@/lib/types/tickets";
 import { toast } from "sonner";
 import { updateTicket } from "@/lib/api/tickets";
 import { addWorknote } from "@/lib/api/worknotes";
+import React from "react";
 
 jest.mock("@/lib/api/tickets", () => ({
   updateTicket: jest.fn().mockResolvedValue({}),
@@ -17,14 +18,23 @@ jest.mock("sonner", () => ({
   toast: { success: jest.fn(), error: jest.fn() },
 }));
 
-jest.mock("./TicketForm", () => ({
-  TicketForm: ({ onSubmit }: any) => (
+interface MockTicketFormProps {
+  onSubmit: (data: TicketUpdate) => void;
+}
+
+interface MockWorknotesSectionProps {
+  note: string;
+  onNoteChange: (value: string) => void;
+}
+
+jest.mock("@/components/TicketPage/TicketForm", () => ({
+  TicketForm: ({ onSubmit }: MockTicketFormProps) => (
     <form
       data-testid="ticket-form"
       id="ticket-form"
-      onSubmit={(e) => {
+      onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        onSubmit({ title: "Updated title" });
+        onSubmit({ title: "Updated title" } as unknown as TicketUpdate);
       }}
     >
       <button type="submit">Submit</button>
@@ -32,17 +42,20 @@ jest.mock("./TicketForm", () => ({
   ),
 }));
 
-jest.mock("./WorknotesSection", () => ({
-  WorknotesSection: ({ note, onNoteChange }: any) => (
+jest.mock("@/components/TicketPage/WorknotesSection", () => ({
+  WorknotesSection: ({ note, onNoteChange }: MockWorknotesSectionProps) => (
     <textarea
       data-testid="worknote-textarea"
       value={note}
-      onChange={(e) => onNoteChange(e.target.value)}
+      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+        onNoteChange(e.target.value)
+      }
     />
   ),
 }));
 
 const mockInvalidateQueries = jest.fn();
+
 jest.mock("@tanstack/react-query", () => {
   const original = jest.requireActual("@tanstack/react-query");
   return {
@@ -50,15 +63,25 @@ jest.mock("@tanstack/react-query", () => {
     useQueryClient: () => ({
       invalidateQueries: mockInvalidateQueries,
     }),
-    useMutation: (opts: any) => ({
-      mutate: async (data: any) => {
+    useMutation: <TData, TVariables>({
+      mutationFn,
+      onSuccess,
+      onError,
+      onSettled,
+    }: {
+      mutationFn: (data: TVariables) => Promise<TData>;
+      onSuccess?: () => void;
+      onError?: (error: Error) => void;
+      onSettled?: () => void;
+    }) => ({
+      mutate: async (data: TVariables) => {
         try {
-          await opts.mutationFn(data);
-          opts.onSuccess?.();
-        } catch (error) {
-          opts.onError?.(error);
+          await mutationFn(data);
+          onSuccess?.();
+        } catch (err) {
+          onError?.(err as Error);
         } finally {
-          opts.onSettled?.();
+          onSettled?.();
         }
       },
     }),
@@ -85,6 +108,7 @@ describe("TicketPageContent", () => {
 
   it("renders TicketForm, WorknotesSection, and Update button", () => {
     render(<TicketPageContent ticket={mockTicket} />);
+
     expect(screen.getByTestId("ticket-form")).toBeInTheDocument();
     expect(screen.getByTestId("worknote-textarea")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /update/i })).toBeInTheDocument();

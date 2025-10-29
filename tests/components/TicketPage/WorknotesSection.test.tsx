@@ -3,7 +3,6 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { WorknotesSection } from "@/components/TicketPage/WorknotesSection";
 import { useQuery } from "@tanstack/react-query";
 import { getWorknotes } from "@/lib/api/worknotes";
-import { Worknote } from "@/components/TicketPage/Worknote";
 
 jest.mock("@tanstack/react-query", () => ({
   useQuery: jest.fn(),
@@ -75,9 +74,8 @@ describe("WorknotesSection", () => {
       },
     ];
 
-    // ✅ Symulujemy zachowanie React Query — czyli wywołanie queryFn()
-    mockUseQuery.mockImplementation(({ queryFn, queryKey }) => {
-      queryFn(); // wywołujemy mockowany getWorknotes(ticketId)
+    mockUseQuery.mockImplementation(({ queryFn }) => {
+      queryFn();
       return {
         data: mockWorknotes,
         isLoading: false,

@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { AddTicketForm } from "./AddTicketForm";
+import { AddTicketForm } from "@/components/TicketPage/AddTicketForm";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -16,7 +16,7 @@ jest.mock("@/lib/api/tickets", () => ({
   addTicket: jest.fn(),
 }));
 
-jest.mock("../DevicesPage/UserCombobox", () => ({
+jest.mock("@/components/DevicesPage/UserCombobox", () => ({
   UserCombobox: jest.fn(({ value, onChange }) => (
     <select
       id="caller"

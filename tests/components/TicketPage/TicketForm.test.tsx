@@ -1,14 +1,28 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { TicketForm } from "./TicketForm";
+import { TicketForm } from "@/components/TicketPage/TicketForm";
 import type { TicketWithUsers } from "@/lib/types/tickets";
 import { Constants } from "@/lib/types/supabase";
+import React from "react";
 
-jest.mock("../DevicesPage/UserCombobox", () => ({
-  UserCombobox: ({ value, onChange }: any) => (
+type UserComboboxProps = {
+  value: string | null;
+  onChange: (value: string | null) => void;
+};
+
+type DatePickerProps = {
+  value: Date | null;
+  onChange: (date: Date | null) => void;
+  label: string;
+};
+
+jest.mock("@/components/DevicesPage/UserCombobox", () => ({
+  UserCombobox: ({ value, onChange }: UserComboboxProps) => (
     <select
       data-testid="user-combobox"
       value={value ?? ""}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+        onChange(e.target.value || null)
+      }
     >
       <option value="">Select user</option>
       <option value="123e4567-e89b-12d3-a456-426614174000">User A</option>
@@ -16,13 +30,15 @@ jest.mock("../DevicesPage/UserCombobox", () => ({
   ),
 }));
 
-jest.mock("../ui/date-picker", () => ({
-  DatePicker: ({ value, onChange, label }: any) => (
+jest.mock("@/components/ui/date-picker", () => ({
+  DatePicker: ({ value, onChange, label }: DatePickerProps) => (
     <input
       data-testid={`date-picker-${label}`}
       type="date"
       value={value ? new Date(value).toISOString().split("T")[0] : ""}
-      onChange={(e) => onChange(new Date(e.target.value))}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+        onChange(e.target.value ? new Date(e.target.value) : null)
+      }
     />
   ),
 }));

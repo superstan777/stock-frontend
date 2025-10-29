@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { Worknote } from "./Worknote";
+import { Worknote } from "@/components/TicketPage/Worknote";
 
 describe("Worknote", () => {
   const mockDate = "2025-10-28T14:30:00Z";
