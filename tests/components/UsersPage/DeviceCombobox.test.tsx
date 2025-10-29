@@ -1,22 +1,19 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { DeviceCombobox } from "./DeviceCombobox";
+import { DeviceCombobox } from "@/components/UsersPage/DeviceCombobox";
 import { useQuery } from "@tanstack/react-query";
 import type { DeviceRow } from "@/lib/types/devices";
 
-// 🧩 MOCK: API (nie Supabase!)
 const mockGetAllDevices = jest.fn();
 
 jest.mock("@/lib/api/devices", () => ({
   getAllDevices: jest.fn(),
 }));
 
-// 🔧 Mock useQuery
 jest.mock("@tanstack/react-query", () => ({
   useQuery: jest.fn(),
 }));
 
-// 🔧 Mock komponentów UI
 jest.mock("@/components/ui/button", () => ({
   Button: ({
     children,

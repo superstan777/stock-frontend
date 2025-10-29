@@ -1,8 +1,8 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { UserPageContent } from "./UserPageContent";
+import { UserPageContent } from "@/components/UsersPage/UserPageContent";
 
-jest.mock("./UserForm", () => ({
+jest.mock("@/components/UsersPage/UserForm", () => ({
   UserForm: jest.fn(({ user }) => (
     <form data-testid="user-form">
       <input name="name" defaultValue={user?.name ?? ""} />
@@ -11,7 +11,7 @@ jest.mock("./UserForm", () => ({
   )),
 }));
 
-jest.mock("./UserTabs", () => ({
+jest.mock("@/components/UsersPage/UserTabs", () => ({
   UserTabs: jest.fn(() => <div data-testid="user-tabs" />),
 }));
 

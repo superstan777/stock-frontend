@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { UserForm, UserFormProps } from "./UserForm";
+import { UserForm, UserFormProps } from "@/components/UsersPage/UserForm";
 import { addUser, updateUser } from "@/lib/api/users";
 import { toast } from "sonner";
 

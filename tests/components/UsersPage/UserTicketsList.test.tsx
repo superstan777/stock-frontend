@@ -1,11 +1,11 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import { UserTicketsList } from "./UserTicketsList";
-import { DataTable } from "../ListPage/DataTable";
+import { UserTicketsList } from "@/components/UsersPage/UserTicketsList";
+import { DataTable } from "@/components/ListPage/DataTable";
 import { USER_TICKETS_COLUMNS } from "@/lib/consts/tickets";
 import type { TicketRow } from "@/lib/types/tickets";
 
-jest.mock("../ListPage/DataTable", () => ({
+jest.mock("@/components/ListPage/DataTable", () => ({
   DataTable: jest.fn(() => (
     <div data-testid="data-table">DataTable rendered</div>
   )),

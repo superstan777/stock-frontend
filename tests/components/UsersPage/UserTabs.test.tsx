@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import { UserTabs } from "./UserTabs";
+import { UserTabs } from "@/components/UsersPage/UserTabs";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { getRelationsByUser } from "@/lib/api/relations";
 import { getUserTickets } from "@/lib/api/tickets";
@@ -21,15 +21,15 @@ jest.mock("@tanstack/react-query", () => {
   };
 });
 
-jest.mock("./RelationForm", () => ({
+jest.mock("@/components/UsersPage/RelationForm", () => ({
   RelationForm: () => <div data-testid="relation-form" />,
 }));
-jest.mock("./UserDevicesList", () => ({
+jest.mock("@/components/UsersPage/UserDevicesList", () => ({
   UserDevicesList: (props: any) => (
     <div data-testid="user-devices-list">{JSON.stringify(props)}</div>
   ),
 }));
-jest.mock("./UserTicketsList", () => ({
+jest.mock("@/components/UsersPage/UserTicketsList", () => ({
   UserTicketsList: (props: any) => (
     <div data-testid="user-tickets-list">{JSON.stringify(props)}</div>
   ),

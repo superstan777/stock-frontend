@@ -4,7 +4,6 @@ import { UserDevicesList } from "@/components/UsersPage/UserDevicesList";
 import { DataTable } from "@/components/ListPage/DataTable";
 import type { RelationWithDetails } from "@/lib/types/relations";
 
-// 🔧 Mock DataTable (żeby nie testować jego wnętrza)
 jest.mock("@/components/ListPage/DataTable", () => ({
   DataTable: jest.fn(() => <div data-testid="data-table" />),
 }));

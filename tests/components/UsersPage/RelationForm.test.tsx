@@ -2,15 +2,12 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { RelationForm } from "@/components/UsersPage/RelationForm";
 import { toast } from "sonner";
 import { createRelation, hasActiveRelation } from "@/lib/api/relations";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-// 🔧 Mock API
 jest.mock("@/lib/api/relations", () => ({
   createRelation: jest.fn(),
   hasActiveRelation: jest.fn(),
 }));
 
-// 🔧 Mock react-query
 const mockInvalidateQueries = jest.fn();
 jest.mock("@tanstack/react-query", () => {
   const actual = jest.requireActual("@tanstack/react-query");
@@ -31,7 +28,6 @@ jest.mock("@tanstack/react-query", () => {
   };
 });
 
-// 🔧 Mock UI components
 jest.mock("sonner", () => ({
   toast: { success: jest.fn(), error: jest.fn() },
 }));
