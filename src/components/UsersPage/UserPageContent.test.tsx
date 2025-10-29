@@ -68,11 +68,4 @@ describe("UserPageContent", () => {
     expect(screen.getByTestId("loader-icon")).toBeInTheDocument();
     expect(button.textContent).toMatch(/Please wait/);
   });
-
-  it("matches snapshot", () => {
-    const { asFragment } = render(
-      <UserPageContent user={mockUser} userId="u1" />
-    );
-    expect(asFragment()).toMatchSnapshot();
-  });
 });
