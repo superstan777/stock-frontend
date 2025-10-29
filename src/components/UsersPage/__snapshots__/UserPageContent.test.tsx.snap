@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`UserPageContent matches snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="p-4"
+  >
+    <div
+      class="flex justify-end"
+    >
+      <button
+        form="user-form"
+        type="submit"
+      >
+        Update
+      </button>
+    </div>
+    <form
+      data-testid="user-form"
+    >
+      <input
+        name="name"
+        value="Alice"
+      />
+      <input
+        name="email"
+        value="alice@test.com"
+      />
+    </form>
+    <div
+      data-testid="user-tabs"
+    />
+  </div>
+</DocumentFragment>
+`;
