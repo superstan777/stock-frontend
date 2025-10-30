@@ -27,7 +27,6 @@ export const ResolvedTicketsChart = () => {
   } = useQuery({
     queryKey: ["dashboard", "resolved-tickets-stats"],
     queryFn: getResolvedTicketsStats,
-    staleTime: 5 * 60 * 1000,
   });
 
   if (isLoading) {

@@ -5,7 +5,6 @@ import { Button } from "../ui/button";
 import { SearchControls } from "./SearchControls";
 import type { ColumnOption, EntityType } from "@/lib/types/table";
 import { FormDialog } from "./FormDialog";
-import { Badge } from "../ui/badge";
 import { ActiveFilters } from "./ActiveFilters";
 
 interface ListHeaderProps<T extends EntityType> {
@@ -22,12 +21,6 @@ export const ListHeader = <T extends EntityType>({
     pathname === "/"
       ? "Dashboard"
       : pathname.replace(/^\//, "").replace(/^\w/, (c) => c.toUpperCase());
-
-  const selectedFilters = [
-    { key: "status", label: "Status: New" },
-    { key: "assigned_to.email", label: "Assigned to: Alice" },
-    { key: "estimated_resolution_date", label: "Date: 2025-10-22" },
-  ];
 
   return (
     <header className="flex flex-col gap-2 mb-4 p-2 ">

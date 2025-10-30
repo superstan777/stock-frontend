@@ -21,7 +21,10 @@ export function DevicePage({ id }: { id: string }) {
   if (deviceQuery.isLoading || relationsQuery.isLoading) {
     return (
       <div className="flex justify-center items-center h-48">
-        <Loader2 className="animate-spin text-muted-foreground" />
+        <Loader2
+          className="animate-spin text-muted-foreground"
+          data-testid="loader"
+        />
       </div>
     );
   }

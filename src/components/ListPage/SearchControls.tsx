@@ -31,13 +31,11 @@ export const SearchControls = <T extends EntityType>({
   const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
-    // nie chcemy ustawiać inputValue z URL, bo teraz będziemy dodawać, nie nadpisywać
     setInputValue("");
   }, [selectedFilter]);
 
   const selectedColumn = columns.find((col) => col.value === selectedFilter);
 
-  // 🔹 Utrzymujemy page na końcu URL
   const buildOrderedUrl = (params: URLSearchParams) => {
     const page = params.get("page");
     params.delete("page");
@@ -50,7 +48,6 @@ export const SearchControls = <T extends EntityType>({
     return `${pathname}?${queryString}`;
   };
 
-  // 🔹 Dodaj nowy filtr lub dopisz wartość do istniejącego
   const handleSearch = () => {
     const trimmedValue = inputValue.trim();
     if (!trimmedValue) return;
@@ -72,7 +69,6 @@ export const SearchControls = <T extends EntityType>({
     setInputValue("");
   };
 
-  // 🔹 Czyścimy WSZYSTKIE filtry
   const handleClear = () => {
     const params = new URLSearchParams(searchParams);
     columns.forEach((col) => params.delete(col.value));
