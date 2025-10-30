@@ -26,7 +26,6 @@ export const TicketsByDayChart = () => {
   } = useQuery({
     queryKey: ["dashboard", "open-tickets-stats"],
     queryFn: getOpenTicketsStats,
-    staleTime: 5 * 60 * 1000,
   });
 
   if (isLoading) {

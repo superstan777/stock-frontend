@@ -27,7 +27,6 @@ export const TicketsByOperatorChart = () => {
   } = useQuery({
     queryKey: ["dashboard", "tickets-by-operator"],
     queryFn: getTicketsByOperator,
-    staleTime: 5 * 60 * 1000,
   });
 
   if (isLoading)
@@ -45,24 +44,22 @@ export const TicketsByOperatorChart = () => {
 
   const total = data.reduce((acc, curr) => acc + curr.count, 0);
 
-  // 🔹 Obsługa kliknięcia w słupek
   const handleBarClick = (email: string | null) => {
     const params = new URLSearchParams(searchParams);
     params.set("status", "New,On Hold,In Progress");
 
     if (!email) {
-      params.set("assigned_to", "null"); // brak przypisanego operatora
-      params.delete("assigned_to.email"); // usuwamy email
+      params.set("assigned_to", "null");
+      params.delete("assigned_to.email");
     } else {
-      params.set("assigned_to.email", email); // przekazujemy email
-      params.delete("assigned_to"); // usuwamy null
+      params.set("assigned_to.email", email);
+      params.delete("assigned_to");
     }
 
     params.set("page", "1");
     router.push(`/tickets?${params.toString()}`);
   };
 
-  // 🔹 Przygotowujemy dane do wykresu: name do wyświetlenia, email do routingu
   const chartData = data.map((d) => ({
     name: d.operator.name,
     email: d.operator.id ? d.operator.email : null,
@@ -84,7 +81,7 @@ export const TicketsByOperatorChart = () => {
           chartConfig={{
             count: { label: "Tickets", color: "var(--chart-1)" },
           }}
-          dataKey="name" // wyświetlamy name
+          dataKey="name"
           onBarClick={(name) => {
             const clicked = chartData.find((d) => d.name === name);
             handleBarClick(clicked?.email ?? null);
