@@ -7,7 +7,7 @@ import {
   act,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { LoginForm } from "./LoginForm";
+import { LoginForm } from "@/components/LoginForm";
 import { login } from "@/app/login/actions";
 
 jest.mock("@/app/login/actions", () => ({

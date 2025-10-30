@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { EndRelationDialog } from "./EndRelationDialog";
+import { EndRelationDialog } from "@/components/EndRelationDialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
