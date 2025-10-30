@@ -32,7 +32,7 @@ describe("LoginForm", () => {
   });
 
   it("calls login and shows error on failure", async () => {
-    (login as jest.Mock).mockResolvedValueOnce({
+    (login as jest.MockedFunction<typeof login>).mockResolvedValueOnce({
       error: "Invalid credentials",
     });
 
@@ -46,7 +46,9 @@ describe("LoginForm", () => {
   });
 
   it("calls router.replace on successful login", async () => {
-    (login as jest.Mock).mockResolvedValueOnce({ error: null });
+    (login as jest.MockedFunction<typeof login>).mockResolvedValueOnce({
+      success: true,
+    });
 
     render(<LoginForm />);
     await userEvent.type(screen.getByLabelText(/email/i), "alice@test.com");
@@ -57,10 +59,13 @@ describe("LoginForm", () => {
   });
 
   it("disables submit button while submitting", async () => {
-    let resolveLogin: (value: any) => void;
-    (login as jest.Mock).mockImplementation(
+    let resolveLogin:
+      | ((value: { error: string } | { success: boolean }) => void)
+      | undefined;
+
+    (login as jest.MockedFunction<typeof login>).mockImplementation(
       () =>
-        new Promise((resolve) => {
+        new Promise<{ error: string } | { success: boolean }>((resolve) => {
           resolveLogin = resolve;
         })
     );
@@ -73,12 +78,12 @@ describe("LoginForm", () => {
       fireEvent.click(screen.getByRole("button", { name: /login/i }));
     });
 
-    // submit button should show "Logging in..." and be disabled
     const button = await screen.findByRole("button", { name: /logging in/i });
     expect(button).toBeDisabled();
 
-    // resolve login
-    await act(async () => resolveLogin({ error: null }));
+    await act(async () => {
+      resolveLogin!({ success: true });
+    });
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /login/i })).not.toBeDisabled();
