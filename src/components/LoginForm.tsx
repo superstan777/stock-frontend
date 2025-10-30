@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 const loginSchema = z.object({
-  email: z.string().email("Invalid email").min(1, "Email is required"),
+  email: z.email("Invalid email").min(1, "Email is required"),
   password: z.string().min(1, "Password is required"),
 });
 
