@@ -3,9 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import ListPage from "@/components/ListPage/ListPage";
-import { getDevices } from "@/lib/api/devices";
+import { getDevices, type DeviceFilter } from "@/lib/api/devices";
 import { MONITOR_COLUMNS } from "@/lib/consts/monitors";
-import type { DeviceFilter } from "@/lib/api/devices";
 
 export default function MonitorsPage() {
   const searchParams = useSearchParams();
@@ -23,16 +22,14 @@ export default function MonitorsPage() {
     queryFn: () => getDevices("monitor", filters, currentPage),
   });
 
-  const totalPages = Math.ceil((data?.count ?? 0) / 20);
-
   return (
     <ListPage
       entity="monitor"
       columns={MONITOR_COLUMNS}
-      tableData={data?.data}
+      tableData={data?.devices}
       isLoading={isLoading}
       error={error}
-      pages={{ current: currentPage, total: totalPages }}
+      metaData={data?.meta}
     />
   );
 }

@@ -1,0 +1,19 @@
+# Dockerfile.dev
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Kopiujemy tylko package.json i package-lock.json/yarn.lock
+COPY package*.json ./
+
+# Instalacja zależności
+RUN npm install
+
+# Kopiujemy resztę kodu (ale w dev i tak mountujemy folder przez volume)
+COPY . .
+
+# Eksponujemy port
+EXPOSE 3000
+
+# Uruchamiamy Next.js w trybie dev
+CMD ["npm", "run", "dev"]

@@ -32,7 +32,7 @@ const mockDevice = {
   serial_number: "ABC123",
   model: "Dell",
   order_id: "ORD001",
-  install_status: "Deployed" as const,
+  install_status: "deployed" as const,
   device_type: "computer" as const,
   created_at: null,
 };
@@ -79,7 +79,7 @@ describe("DeviceForm", () => {
     expect(screen.getByDisplayValue("ABC123")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Dell")).toBeInTheDocument();
     expect(screen.getByDisplayValue("ORD001")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("Deployed")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("deployed")).toBeInTheDocument();
     expect(screen.getByDisplayValue("computer")).toBeInTheDocument();
   });
 
@@ -129,7 +129,7 @@ describe("DeviceForm", () => {
         serial_number: "SN123",
         model: "HP",
         order_id: "ORDER-9",
-        install_status: "In Inventory",
+        install_status: "in_inventory",
         device_type: "computer",
       });
       expect(onSuccess).toHaveBeenCalled();
@@ -160,7 +160,7 @@ describe("DeviceForm", () => {
         serial_number: "ABC123",
         model: "Lenovo",
         order_id: "ORD001",
-        install_status: "Deployed",
+        install_status: "deployed",
         device_type: "computer",
       });
       expect(onSuccess).toHaveBeenCalled();

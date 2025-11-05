@@ -39,7 +39,8 @@ describe("ListPage", () => {
     },
   ];
 
-  const mockPages = { current: 1, total: 3 };
+  // const mockPages = { currentPage: 1, totalPages: 3 };
+  const mockMetaData = { count: 5, current_page: 1, total_pages: 3 };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -51,7 +52,7 @@ describe("ListPage", () => {
         entity="user"
         columns={mockColumns}
         tableData={mockData}
-        pages={mockPages}
+        metaData={mockMetaData}
         isLoading={false}
         error={null}
       />
@@ -68,7 +69,7 @@ describe("ListPage", () => {
         entity="user"
         columns={mockColumns}
         tableData={mockData}
-        pages={mockPages}
+        metaData={mockMetaData}
         isLoading={false}
         error={null}
       />
@@ -92,7 +93,7 @@ describe("ListPage", () => {
         entity="user"
         columns={mockColumns}
         tableData={mockData}
-        pages={mockPages}
+        metaData={mockMetaData}
         isLoading={false}
         error={null}
       />
@@ -101,8 +102,8 @@ describe("ListPage", () => {
     const props = (PaginationControls as jest.Mock).mock.calls[0][0];
     expect(props).toEqual(
       expect.objectContaining({
-        currentPage: mockPages.current,
-        totalPages: mockPages.total,
+        currentPage: mockMetaData.current_page,
+        totalPages: mockMetaData.total_pages,
       })
     );
   });
@@ -113,7 +114,7 @@ describe("ListPage", () => {
         entity="user"
         columns={mockColumns}
         tableData={mockData}
-        pages={mockPages}
+        metaData={mockMetaData}
         isLoading={false}
         error={null}
       />

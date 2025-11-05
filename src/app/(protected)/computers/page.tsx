@@ -21,17 +21,16 @@ export default function ComputersPage() {
     queryKey: ["devices", "computers", currentPage, filters],
     queryFn: () => getDevices("computer", filters, currentPage),
   });
-
-  const totalPages = Math.ceil((data?.count ?? 0) / 20);
+  console.log(data);
 
   return (
     <ListPage
       entity="computer"
       columns={COMPUTER_COLUMNS}
-      tableData={data?.data}
+      tableData={data?.devices}
       isLoading={isLoading}
       error={error}
-      pages={{ current: currentPage, total: totalPages }}
+      metaData={data?.meta}
     />
   );
 }

@@ -9,9 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Constants } from "@/lib/types/supabase";
-import { addDevice, updateDevice } from "@/lib/api/devices";
-
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm, Controller } from "react-hook-form";
@@ -22,21 +19,29 @@ import type {
   DeviceInsert,
   DeviceRow,
   DeviceType,
+  InstallStatus,
 } from "@/lib/types/devices";
+import { addDevice, updateDevice } from "@/lib/api/devices";
+import { ALL_INSTALL_STATUSES, ALL_DEVICE_TYPES } from "@/lib/consts/devices";
 
 const deviceSchema = z.object({
   serial_number: z.string().trim().min(1, "Serial number is required"),
   model: z.string().trim().min(1, "Model is required"),
   order_id: z.string().trim().min(1, "Order ID is required"),
-  install_status: z.enum(Constants.public.Enums.install_status),
-  device_type: z.enum(Constants.public.Enums.device_type),
+  install_status: z.enum([
+    "in_inventory",
+    "disposed",
+    "end_of_life",
+    "deployed",
+  ] as [InstallStatus, ...InstallStatus[]]),
+  device_type: z.enum(["computer", "monitor"] as [DeviceType, ...DeviceType[]]),
 });
 
 type DeviceFormData = z.infer<typeof deviceSchema>;
 
 export interface DeviceFormProps {
   device?: DeviceRow;
-  deviceType?: DeviceType; // używane przy dodawaniu nowego urządzenia
+  deviceType?: DeviceType;
   setIsLoading: (loading: boolean) => void;
   onSuccess?: () => void;
   onError?: (error: unknown) => void;
@@ -59,7 +64,7 @@ export const DeviceForm: React.FC<DeviceFormProps> = ({
         serial_number: device?.serial_number ?? "",
         model: device?.model ?? "",
         order_id: device?.order_id ?? "",
-        install_status: device?.install_status ?? "In Inventory",
+        install_status: device?.install_status ?? "in_inventory",
         device_type: device?.device_type ?? deviceType ?? "computer",
       },
     });
@@ -142,7 +147,7 @@ export const DeviceForm: React.FC<DeviceFormProps> = ({
                 <SelectValue placeholder="Select install status" />
               </SelectTrigger>
               <SelectContent>
-                {Constants.public.Enums.install_status.map((status) => (
+                {ALL_INSTALL_STATUSES.map((status) => (
                   <SelectItem key={status} value={status}>
                     {status}
                   </SelectItem>
@@ -167,7 +172,7 @@ export const DeviceForm: React.FC<DeviceFormProps> = ({
                 <SelectValue placeholder="Device type" />
               </SelectTrigger>
               <SelectContent>
-                {Constants.public.Enums.device_type.map((type) => (
+                {ALL_DEVICE_TYPES.map((type) => (
                   <SelectItem key={type} value={type}>
                     {type}
                   </SelectItem>

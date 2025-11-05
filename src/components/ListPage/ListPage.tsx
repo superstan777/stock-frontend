@@ -3,14 +3,14 @@
 import { DataTable } from "./DataTable";
 import { ListHeader } from "./ListHeader";
 import { ColumnOption } from "@/lib/types/table";
-import type { EntityType, EntityData, PagesType } from "@/lib/types/table";
+import type { EntityType, EntityData, MetaData } from "@/lib/types/table";
 import { PaginationControls } from "./PaginationControls";
 
 interface ListPageProps<T extends EntityType> {
   entity: T;
   columns: ColumnOption<T>[];
   tableData: EntityData<T>[] | undefined;
-  pages: PagesType;
+  metaData: MetaData | undefined;
   clickableFields?: string[];
   isLoading: boolean;
   error: unknown;
@@ -20,7 +20,7 @@ export default function ListPage<T extends EntityType>({
   entity,
   columns,
   tableData,
-  pages,
+  metaData,
   isLoading,
   error,
 }: ListPageProps<T>) {
@@ -36,10 +36,12 @@ export default function ListPage<T extends EntityType>({
         entity={entity}
       />
 
-      <PaginationControls
-        currentPage={pages.current}
-        totalPages={pages.total}
-      />
+      {metaData && (
+        <PaginationControls
+          currentPage={metaData.current_page}
+          totalPages={metaData.total_pages}
+        />
+      )}
     </div>
   );
 }

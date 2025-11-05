@@ -30,7 +30,8 @@ export type EntityDataMap = {
 
 export type EntityData<T extends EntityType> = EntityDataMap[T];
 
-export type PagesType = {
-  current: number;
-  total: number;
+export type MetaData = {
+  count: number;
+  current_page: number;
+  total_pages: number;
 };

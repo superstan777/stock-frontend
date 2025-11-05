@@ -1,122 +1,114 @@
-import { createClient } from "@/lib/supabase/client";
 import type {
   DeviceType,
-  InstallStatus,
   DeviceRow,
   DeviceUpdate,
   DeviceInsert,
 } from "../types/devices";
-import type { ComputerFilterKeyType } from "../consts/computers";
-import type { MonitorFilterKeyType } from "../consts/monitors";
-import { ALL_INSTALL_STATUSES } from "@/lib/consts/devices";
-const supabase = createClient();
+import type { MetaData } from "../types/table";
 
 export interface DeviceFilter {
-  key: ComputerFilterKeyType | MonitorFilterKeyType | string;
+  key: string;
   value: string;
 }
 
+const API_URL = "http://localhost:8080/api";
+
+/**
+ * Pobiera listę urządzeń danego typu z filtrami i paginacją.
+ */
 export const getDevices = async (
   deviceType: DeviceType,
   filters: DeviceFilter[] = [],
-  page: number = 1,
-  perPage: number = 20
-): Promise<{ data: DeviceRow[]; count: number }> => {
-  let q = supabase
-    .from("devices")
-    .select("*", { count: "exact" })
-    .eq("device_type", deviceType)
-    .order("serial_number", { ascending: true });
+  page: number = 1
+): Promise<{
+  devices: DeviceRow[];
+  meta: MetaData;
+}> => {
+  const params = new URLSearchParams();
+  params.append("page", page.toString());
 
-  for (const { key, value } of filters) {
-    if (!value) continue;
-
-    const values = value
-      .split(",")
-      .map((v) => v.trim())
-      .filter(Boolean);
-
-    if (key === "install_status") {
-      const matchingStatuses = ALL_INSTALL_STATUSES.filter((status) =>
-        values.some((v) => status.toLowerCase().includes(v.toLowerCase()))
-      );
-
-      if (matchingStatuses.length > 0) {
-        q = q.in(key, matchingStatuses as InstallStatus[]);
-      } else {
-        q = q.eq(key, "__no_match__" as InstallStatus);
-      }
-    } else if (key === "id" || key === "serial_number") {
-      if (values.length > 1) {
-        q = q.or(values.map((v) => `${key}.ilike.${v}%`).join(","));
-      } else {
-        q = q.ilike(key, `${values[0]}%`);
-      }
-    } else {
-      if (values.length > 1) {
-        q = q.or(values.map((v) => `${key}.ilike.${v}%`).join(","));
-      } else {
-        q = q.ilike(key, `${values[0]}%`);
-      }
-    }
+  for (const f of filters) {
+    if (f.value) params.append(f.key, f.value);
   }
 
-  const from = (page - 1) * perPage;
-  const to = from + perPage - 1;
-  q = q.range(from, to);
+  const res = await fetch(
+    `${API_URL}/devices/${deviceType}s?${params.toString()}`
+  );
+  if (!res.ok) {
+    throw new Error(`API error: ${res.statusText}`);
+  }
 
-  const { data, count, error } = await q;
-  if (error) throw error;
-  if (!data) return { data: [], count: 0 };
+  const json = await res.json();
 
-  return { data: data as DeviceRow[], count: count ?? 0 };
+  return json.data;
 };
 
+/**
+ * Dodaje nowe urządzenie.
+ */
 export const addDevice = async (device: DeviceInsert): Promise<DeviceRow[]> => {
-  const { data, error } = await supabase.from("devices").insert([device]);
-  if (error) throw error;
-  return data ?? [];
+  const res = await fetch(`${API_URL}/devices`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(device),
+  });
+  if (!res.ok) {
+    throw new Error(`Add device failed: ${res.statusText}`);
+  }
+  const json = await res.json();
+  return json.data ?? [];
 };
 
+/**
+ * Aktualizuje istniejące urządzenie.
+ */
 export const updateDevice = async (
   id: string,
   updates: DeviceUpdate
 ): Promise<DeviceRow[]> => {
-  const { data, error } = await supabase
-    .from("devices")
-    .update(updates)
-    .eq("id", id);
-
-  if (error) throw error;
-  return data ?? [];
+  const res = await fetch(`${API_URL}/device/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updates),
+  });
+  if (!res.ok) {
+    throw new Error(`Update device failed: ${res.statusText}`);
+  }
+  const json = await res.json();
+  return json.data ?? [];
 };
 
-export const deleteDevice = async (id: string): Promise<DeviceRow[]> => {
-  const { data, error } = await supabase.from("devices").delete().eq("id", id);
-  if (error) throw error;
-  return data ?? [];
+/**
+ * Usuwa urządzenie po ID.
+ */
+export const deleteDevice = async (id: string): Promise<void> => {
+  const res = await fetch(`${API_URL}/device/${id}`, { method: "DELETE" });
+  if (!res.ok) {
+    throw new Error(`Delete device failed: ${res.statusText}`);
+  }
 };
 
+/**
+ * Pobiera pojedyncze urządzenie po ID.
+ */
 export const getDevice = async (id: string): Promise<DeviceRow | null> => {
-  const { data, error } = await supabase
-    .from("devices")
-    .select("*")
-    .eq("id", id)
-    .single();
+  const res = await fetch(`${API_URL}/device/${id}`);
+  if (!res.ok) {
+    throw new Error(`Get device failed: ${res.statusText}`);
+  }
+  const json = await res.json();
 
-  if (error) throw error;
-  if (!data) return null;
-
-  return data as DeviceRow;
+  return json.data ?? null;
 };
 
+/**
+ * Pobiera wszystkie urządzenia (bez paginacji, do np. dropdownów).
+ */
 export const getAllDevices = async (): Promise<DeviceRow[]> => {
-  const { data, error } = await supabase
-    .from("devices")
-    .select("*")
-    .order("device_type", { ascending: true })
-    .order("serial_number", { ascending: true });
-
-  if (error) throw error;
-  return data ?? [];
+  const res = await fetch(`${API_URL}/devices`);
+  if (!res.ok) {
+    throw new Error(`Get all devices failed: ${res.statusText}`);
+  }
+  const json = await res.json();
+  return json.data ?? [];
 };
