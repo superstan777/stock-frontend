@@ -1,8 +1,7 @@
 import type { DeviceRow } from "../types/devices";
 import type { ColumnOption } from "../types/table";
 import { formatLabel } from "../utils";
-import { Constants } from "@/lib/types/supabase";
-import type { InstallStatus } from "../types/devices";
+import { ALL_INSTALL_STATUSES } from "./devices";
 
 type AllComputerKeys = keyof DeviceRow;
 export type ComputerFilterKeyType = Exclude<
@@ -24,9 +23,7 @@ export const COMPUTER_COLUMNS: ColumnOption[] = COMPUTER_FILTER_KEYS.map(
         value: key,
         label: formatLabel(key),
         type: "select",
-        options: Object.values(
-          Constants.public.Enums.install_status
-        ) as InstallStatus[],
+        options: ALL_INSTALL_STATUSES,
       };
     }
 

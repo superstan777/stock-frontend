@@ -1,8 +1,7 @@
 import type { DeviceRow } from "../types/devices";
 import type { ColumnOption } from "../types/table";
 import { formatLabel } from "../utils";
-import { Constants } from "@/lib/types/supabase";
-import type { InstallStatus } from "../types/devices";
+import { ALL_INSTALL_STATUSES } from "./devices";
 
 type AllMonitorKeys = keyof DeviceRow;
 export type MonitorFilterKeyType = Exclude<AllMonitorKeys, "id" | "created_at">;
@@ -21,9 +20,7 @@ export const MONITOR_COLUMNS: ColumnOption[] = MONITOR_FILTER_KEYS.map(
         value: key,
         label: formatLabel(key),
         type: "select",
-        options: Object.values(
-          Constants.public.Enums.install_status
-        ) as InstallStatus[],
+        options: ALL_INSTALL_STATUSES,
       };
     }
 
@@ -61,9 +58,7 @@ export const USER_MONITORS_COLUMNS: ColumnOption[] =
         value: key,
         label: formatLabel(key),
         type: "select",
-        options: Object.values(
-          Constants.public.Enums.install_status
-        ) as InstallStatus[],
+        options: ALL_INSTALL_STATUSES,
       };
     }
 
