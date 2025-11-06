@@ -22,9 +22,9 @@ import { getAllDevices } from "@/lib/api/devices";
 import type { DeviceRow } from "@/lib/types/devices";
 
 interface DeviceComboboxProps {
-  value: string | null; // UUID urządzenia
+  value: string | null;
   onChange: (value: string | null) => void;
-  disabled?: boolean; // nowy props
+  disabled?: boolean;
 }
 
 export function DeviceCombobox({
@@ -35,10 +35,12 @@ export function DeviceCombobox({
   const [open, setOpen] = React.useState(false);
   const triggerRef = React.useRef<HTMLButtonElement | null>(null);
 
-  const { data: devices = [], isLoading } = useQuery<DeviceRow[]>({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["devices", "all"],
     queryFn: getAllDevices,
   });
+
+  const devices: DeviceRow[] = data?.devices ?? [];
 
   const selectedDevice = devices.find((d) => d.id === value) ?? null;
 
@@ -57,6 +59,8 @@ export function DeviceCombobox({
             <span className="flex items-center">
               <Loader2Icon className="animate-spin mr-2 h-4 w-4" /> Loading...
             </span>
+          ) : isError ? (
+            "Error loading devices"
           ) : selectedDevice ? (
             `${selectedDevice.device_type.toUpperCase()} • ${
               selectedDevice.serial_number
@@ -80,7 +84,11 @@ export function DeviceCombobox({
           />
           <CommandList>
             <CommandEmpty>
-              {isLoading ? "Loading..." : "No device found."}
+              {isLoading
+                ? "Loading..."
+                : isError
+                ? "Error fetching devices"
+                : "No device found."}
             </CommandEmpty>
             <CommandGroup>
               {devices.map((device) => (

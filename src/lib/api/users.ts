@@ -1,86 +1,78 @@
-import { createClient } from "@/lib/supabase/client";
-import type { UserRow, UserInsert, UserUpdate } from "../types/users";
+import { type UserRow, type UserInsert, type UserUpdate } from "../types/users";
 import type { UserFilterKeyType } from "../consts/users";
-
-const supabase = createClient();
 
 export type UserFilter = {
   key: UserFilterKeyType;
   value: string;
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export const getUsers = async (
   filters: UserFilter[] = [],
-  page: number = 1,
-  perPage: number = 20
-): Promise<{ data: UserRow[]; count: number }> => {
-  let q = supabase
-    .from("users")
-    .select("*", { count: "exact" })
-    .order("name", { ascending: true });
+  page: number = 1
+): Promise<{
+  users: UserRow[];
+  meta: { count: number; current_page: number; total_pages: number };
+}> => {
+  const params = new URLSearchParams();
 
+  // Paginacja
+  params.append("page", page.toString());
+
+  // Filtry
   for (const { key, value } of filters) {
-    if (!value) continue;
-
-    const values = value
-      .split(",")
-      .map((v) => v.trim())
-      .filter(Boolean);
-
-    if (values.length === 0) continue;
-
-    if (values.length > 1) {
-      const orFilters = values.map((v) => `${key}.ilike.${v}%`).join(",");
-      q = q.or(orFilters);
-    } else {
-      q = q.ilike(key, `${values[0]}%`);
-    }
+    if (value) params.append(key, value);
   }
 
-  const from = (page - 1) * perPage;
-  const to = from + perPage - 1;
-  q = q.range(from, to);
+  const res = await fetch(`${API_URL}/users?${params.toString()}`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch users: ${res.status}`);
+  }
 
-  const { data, count, error } = await q;
-  if (error) throw error;
-
-  return {
-    data: (data as UserRow[]) ?? [],
-    count: count ?? 0,
-  };
+  const json = await res.json();
+  return json.data;
 };
 
-export const addUser = async (user: UserInsert): Promise<UserRow[]> => {
-  const { data, error } = await supabase.from("users").insert([user]);
-  if (error) throw error;
-  return data ?? [];
+export const getUser = async (id: string): Promise<UserRow | null> => {
+  const res = await fetch(`${API_URL}/users/${id}`);
+  if (!res.ok) {
+    if (res.status === 404) return null;
+    throw new Error(`Failed to fetch user: ${res.status}`);
+  }
+  const json = await res.json();
+
+  return json.data ?? null;
+};
+
+export const addUser = async (user: UserInsert): Promise<UserRow> => {
+  const res = await fetch(`${API_URL}/users`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(user),
+  });
+  if (!res.ok) throw new Error(`Failed to add user: ${res.status}`);
+  const json = await res.json();
+  return json.data?.user ?? json.user;
 };
 
 export const updateUser = async (
   id: string,
   updates: UserUpdate
-): Promise<UserRow[]> => {
-  const { data, error } = await supabase
-    .from("users")
-    .update(updates)
-    .eq("id", id);
-  if (error) throw error;
-  return data ?? [];
+): Promise<UserRow> => {
+  const res = await fetch(`${API_URL}/users/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updates),
+  });
+  if (!res.ok) throw new Error(`Failed to update user: ${res.status}`);
+  const json = await res.json();
+  return json.data?.user ?? json.user;
 };
 
-export const deleteUser = async (id: string): Promise<UserRow[]> => {
-  const { data, error } = await supabase.from("users").delete().eq("id", id);
-  if (error) throw error;
-  return data ?? [];
-};
-
-export const getUser = async (id: string): Promise<UserRow | null> => {
-  const { data, error } = await supabase
-    .from("users")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error) throw error;
-  return data ?? null;
+export const deleteUser = async (id: string): Promise<void> => {
+  const res = await fetch(`${API_URL}/users/${id}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error(`Failed to delete user: ${res.status}`);
 };

@@ -7,13 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2Icon } from "lucide-react";
 import type { UserRow } from "@/lib/types/users";
 
-export function UserPageContent({
-  user,
-  userId,
-}: {
-  user: UserRow;
-  userId: string;
-}) {
+export function UserPageContent({ user }: { user: UserRow }) {
   const [isLoading, setIsLoading] = useState(false);
 
   return (
@@ -32,7 +26,7 @@ export function UserPageContent({
       </div>
 
       <UserForm user={user} setIsLoading={setIsLoading} />
-      <UserTabs userId={userId} />
+      <UserTabs userId={user.id} />
     </div>
   );
 }

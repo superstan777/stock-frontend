@@ -24,16 +24,14 @@ export default function UsersPage() {
     queryFn: () => getUsers(filters, currentPage),
   });
 
-  const totalPages = Math.ceil((data?.count ?? 0) / 20);
-
   return (
     <ListPage
       entity="user"
       columns={USER_COLUMNS}
-      tableData={data?.data}
+      tableData={data?.users}
       isLoading={isLoading}
       error={error}
-      pages={{ current: currentPage, total: totalPages }}
+      metaData={data?.meta}
       clickableFields={["name"]}
     />
   );

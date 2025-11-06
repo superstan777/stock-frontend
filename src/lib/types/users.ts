@@ -1,5 +1,16 @@
-import { Database } from "../types/supabase";
+export type UserRow = {
+  created_at: string;
+  email: string;
+  id: string;
+  name: string;
+};
 
-export type UserRow = Database["public"]["Tables"]["users"]["Row"];
-export type UserInsert = Database["public"]["Tables"]["users"]["Insert"];
-export type UserUpdate = Database["public"]["Tables"]["users"]["Update"];
+export type UserInsert = {
+  email: string;
+  name: string;
+};
+
+export type UserUpdate = {
+  email?: string;
+  name?: string;
+};

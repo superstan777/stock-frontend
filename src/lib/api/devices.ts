@@ -13,9 +13,6 @@ export interface DeviceFilter {
 
 const API_URL = "http://localhost:8080/api";
 
-/**
- * Pobiera listę urządzeń danego typu z filtrami i paginacją.
- */
 export const getDevices = async (
   deviceType: DeviceType,
   filters: DeviceFilter[] = [],
@@ -43,9 +40,6 @@ export const getDevices = async (
   return json.data;
 };
 
-/**
- * Dodaje nowe urządzenie.
- */
 export const addDevice = async (device: DeviceInsert): Promise<DeviceRow[]> => {
   const res = await fetch(`${API_URL}/devices`, {
     method: "POST",
@@ -59,9 +53,6 @@ export const addDevice = async (device: DeviceInsert): Promise<DeviceRow[]> => {
   return json.data ?? [];
 };
 
-/**
- * Aktualizuje istniejące urządzenie.
- */
 export const updateDevice = async (
   id: string,
   updates: DeviceUpdate
@@ -78,9 +69,6 @@ export const updateDevice = async (
   return json.data ?? [];
 };
 
-/**
- * Usuwa urządzenie po ID.
- */
 export const deleteDevice = async (id: string): Promise<void> => {
   const res = await fetch(`${API_URL}/device/${id}`, { method: "DELETE" });
   if (!res.ok) {
@@ -88,9 +76,6 @@ export const deleteDevice = async (id: string): Promise<void> => {
   }
 };
 
-/**
- * Pobiera pojedyncze urządzenie po ID.
- */
 export const getDevice = async (id: string): Promise<DeviceRow | null> => {
   const res = await fetch(`${API_URL}/device/${id}`);
   if (!res.ok) {
@@ -101,14 +86,16 @@ export const getDevice = async (id: string): Promise<DeviceRow | null> => {
   return json.data ?? null;
 };
 
-/**
- * Pobiera wszystkie urządzenia (bez paginacji, do np. dropdownów).
- */
-export const getAllDevices = async (): Promise<DeviceRow[]> => {
+export const getAllDevices = async (): Promise<{
+  devices: DeviceRow[];
+  meta: MetaData;
+}> => {
   const res = await fetch(`${API_URL}/devices`);
   if (!res.ok) {
     throw new Error(`Get all devices failed: ${res.statusText}`);
   }
   const json = await res.json();
+  console.log(json.data);
+
   return json.data ?? [];
 };
