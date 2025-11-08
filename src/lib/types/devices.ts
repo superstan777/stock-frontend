@@ -1,5 +1,3 @@
-import { Database } from "../types/supabase";
-
 export type DevicesColumnType = {
   label: string;
   value: string;
@@ -31,7 +29,6 @@ export type DeviceInsert = {
   serial_number: string;
 };
 
-// tutaj do poprawki
 export type DeviceUpdate = {
   created_at?: string | null | undefined;
   device_type?: "computer" | "monitor" | undefined;
