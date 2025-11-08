@@ -45,11 +45,7 @@ export const AddTicketForm: React.FC<AddTicketFormProps> = ({
   });
 
   const mutation = useMutation({
-    mutationFn: (data: TicketFormData) =>
-      addTicket({
-        ...data,
-        status: "New",
-      }),
+    mutationFn: (data: TicketFormData) => addTicket(data),
     onMutate: () => setIsLoading(true),
     onSettled: () => setIsLoading(false),
     onSuccess: () => {

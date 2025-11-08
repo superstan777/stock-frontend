@@ -16,6 +16,7 @@ import type { TicketWithUsers, TicketUpdate } from "@/lib/types/tickets";
 import { Constants } from "@/lib/types/supabase";
 import { UserCombobox } from "../DevicesPage/UserCombobox";
 import { DatePicker } from "../ui/date-picker";
+import { ALL_TICKET_STATUSES } from "@/lib/consts/tickets";
 
 const ticketSchema = z.object({
   title: z.string().trim().min(1, "Title is required"),
@@ -119,7 +120,7 @@ export const TicketForm: React.FC<TicketFormProps> = ({ ticket, onSubmit }) => {
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Constants.public.Enums.ticket_status.map((status) => (
+                  {ALL_TICKET_STATUSES.map((status) => (
                     <SelectItem key={status} value={status}>
                       {status}
                     </SelectItem>

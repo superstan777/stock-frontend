@@ -24,16 +24,14 @@ export default function TicketsPage() {
     queryFn: () => getTickets(filters, currentPage),
   });
 
-  const totalPages = Math.ceil((data?.count ?? 0) / 20);
-
   return (
     <ListPage
       entity="ticket"
       columns={TICKET_COLUMNS}
-      tableData={data?.data}
+      tableData={data?.tickets}
       isLoading={isLoading}
       error={error}
-      pages={{ current: currentPage, total: totalPages }}
+      metaData={data?.meta}
     />
   );
 }

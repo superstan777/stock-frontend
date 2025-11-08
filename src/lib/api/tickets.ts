@@ -1,380 +1,124 @@
-import { createClient } from "@/lib/supabase/client";
 import type {
   TicketRow,
   TicketInsert,
   TicketUpdate,
   TicketWithUsers,
+  OperatorTicketsStats,
+  TicketsStats,
 } from "../types/tickets";
-import type { TicketFilterKeyType } from "../consts/tickets";
+import type { MetaData } from "../types/table";
 
-const supabase = createClient();
-
-export type TicketFilter = {
-  key: TicketFilterKeyType | "caller.email" | "assigned_to.email";
+export interface TicketFilter {
+  key: string;
   value: string;
-};
+}
+
+const API_URL = "http://localhost:8080/api";
 
 export const getTickets = async (
   filters: TicketFilter[] = [],
-  page: number = 1,
-  perPage: number = 20
-): Promise<{ data: TicketWithUsers[]; count: number }> => {
-  const hasAssignedEmailFilter = filters.some(
-    (f) => f.key === "assigned_to.email"
-  );
+  page: number = 1
+): Promise<{ tickets: TicketWithUsers[]; meta: MetaData }> => {
+  const params = new URLSearchParams();
 
-  const selectCaller = filters.some((f) => f.key === "caller.email")
-    ? "caller:users!tickets_caller_id_fkey!inner(id,email)"
-    : "caller:users!tickets_caller_id_fkey(id,email)";
-
-  const selectAssigned = hasAssignedEmailFilter
-    ? "assigned_to:users!tickets_assigned_to_fkey!inner(id,email)"
-    : "assigned_to:users!tickets_assigned_to_fkey(id,email)";
-
-  const selectFields = `
-    id,
-    number,
-    title,
-    description,
-    status,
-    created_at,
-    estimated_resolution_date,
-    resolution_date,
-    ${selectCaller},
-    ${selectAssigned}
-  `;
-
-  const runQuery = async (extraFilters: TicketFilter[] = []) => {
-    let q = supabase
-      .from("tickets")
-      .select(selectFields, { count: "exact" })
-      .order("title", { ascending: true });
-
-    for (const { key, value } of extraFilters) {
-      if (!value) continue;
-
-      const values = value
-        .split(",")
-        .map((v) => v.trim())
-        .filter(Boolean);
-
-      if (key === "number") {
-        const numericValues = values.filter((v) => /^\d+$/.test(v)).map(Number);
-        if (numericValues.length > 1) q = q.in("number", numericValues);
-        else q = q.eq("number", numericValues[0]);
-      } else if (key === "caller.email" || key === "assigned_to.email") {
-        q = q.ilike(key, `${values[0]}%`);
-      } else if (key === "status") {
-        if (values.length > 1) q = q.in("status", values);
-        else q = q.eq("status", values[0]);
-      } else if (
-        key === "estimated_resolution_date" ||
-        key === "resolution_date"
-      ) {
-        const val = values[0];
-        if (val === "null") q = q.is(key, null);
-        else {
-          const localDate = new Date(val + "T00:00:00");
-          const startUtc = new Date(localDate.getTime());
-          const endUtc = new Date(startUtc.getTime() + 24 * 60 * 60 * 1000 - 1);
-          q = q.gte(key, startUtc.toISOString()).lte(key, endUtc.toISOString());
-        }
-      } else {
-        q = q.ilike(key, `${values[0]}%`);
-      }
-    }
-
-    const from = (page - 1) * perPage;
-    const to = from + perPage - 1;
-    q = q.range(from, to);
-
-    const { data, count, error } = await q;
-    if (error) throw error;
-
-    return {
-      data: (data ?? []) as unknown as TicketWithUsers[],
-      count: count ?? 0,
-    };
-  };
-
-  const normalFilters = filters.filter(
-    (f) => f.key !== "caller.email" && f.key !== "assigned_to.email"
-  );
-
-  const emailFilters = filters.filter(
-    (f) => f.key === "caller.email" || f.key === "assigned_to.email"
-  );
-
-  if (emailFilters.length === 0) {
-    const result = await runQuery(filters);
-    return {
-      data: result.data as TicketWithUsers[],
-      count: result.count,
-    };
+  // najpierw filtry
+  for (const f of filters) {
+    if (f.value) params.append(f.key, f.value);
   }
 
-  const allResults: TicketWithUsers[] = [];
-  const seenIds = new Set<string>();
+  // na końcu page
+  params.append("page", page.toString());
 
-  for (const f of emailFilters) {
-    const values = f.value
-      .split(",")
-      .map((v) => v.trim())
-      .filter(Boolean);
-
-    for (const v of values) {
-      const singleResult = await runQuery([
-        ...normalFilters,
-        { key: f.key, value: v },
-      ]);
-
-      for (const t of singleResult.data) {
-        if (!seenIds.has(t.id)) {
-          allResults.push(t);
-          seenIds.add(t.id);
-        }
-      }
-    }
+  const res = await fetch(`${API_URL}/tickets?${params.toString()}`);
+  if (!res.ok) {
+    throw new Error(`API error: ${res.statusText}`);
   }
 
-  return {
-    data: allResults,
-    count: allResults.length,
-  };
+  const json = await res.json();
+  return json.data;
 };
 
 export const getTicket = async (
   id: string
 ): Promise<TicketWithUsers | null> => {
-  const { data, error } = await supabase
-    .from("tickets")
-    .select(
-      `
-      id,
-      number,
-      title,
-      description,
-      status,
-      created_at,
-      estimated_resolution_date,
-      resolution_date,
-      caller:users!tickets_caller_id_fkey(id,email),
-      assigned_to:users!tickets_assigned_to_fkey(id,email)
-    `
-    )
-    .eq("id", id)
-    .single();
+  const res = await fetch(`${API_URL}/tickets/${id}`);
+  if (!res.ok) {
+    throw new Error(`Get ticket failed: ${res.statusText}`);
+  }
 
-  if (error) throw error;
-
-  const { caller, assigned_to, ...ticket } = data as unknown as TicketWithUsers;
-
-  return {
-    ...ticket,
-    caller: caller ? { id: caller.id, email: caller.email } : null,
-    assigned_to: assigned_to
-      ? { id: assigned_to.id, email: assigned_to.email }
-      : null,
-  };
+  const json = await res.json();
+  return json.data ?? null;
 };
 
 export const addTicket = async (ticket: TicketInsert): Promise<TicketRow[]> => {
-  const { data, error } = await supabase.from("tickets").insert([ticket]);
-  if (error) throw error;
-  return data ?? [];
+  const res = await fetch(`${API_URL}/tickets`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(ticket),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Add ticket failed: ${res.statusText}`);
+  }
+
+  const json = await res.json();
+  return json.data ?? [];
 };
 
 export const updateTicket = async (
   id: string,
   updates: TicketUpdate
 ): Promise<TicketRow[]> => {
-  const { data, error } = await supabase
-    .from("tickets")
-    .update(updates)
-    .eq("id", id);
-
-  if (error) throw error;
-  return data ?? [];
-};
-
-export const deleteTicket = async (id: string): Promise<TicketRow[]> => {
-  const { data, error } = await supabase.from("tickets").delete().eq("id", id);
-  if (error) throw error;
-  return data ?? [];
-};
-
-export const getUserTickets = async (
-  userId: string,
-  page: number = 1,
-  perPage: number = 20
-): Promise<{ data: TicketRow[]; count: number }> => {
-  let q = supabase
-    .from("tickets")
-    .select("*", { count: "exact" })
-    .eq("caller_id", userId)
-    .order("created_at", { ascending: false });
-
-  const from = (page - 1) * perPage;
-  const to = from + perPage - 1;
-  q = q.range(from, to);
-
-  const { data, count, error } = await q;
-  if (error) throw error;
-
-  return {
-    data: (data as TicketRow[]) ?? [],
-    count: count ?? 0,
-  };
-};
-
-export const getNewTickets = async (): Promise<TicketWithUsers[]> => {
-  const { data, error } = await supabase
-    .from("tickets")
-    .select(
-      `
-      id,
-      number,
-      title,
-      description,
-      status,
-      created_at,
-      estimated_resolution_date,
-      resolution_date,
-      caller:users!tickets_caller_id_fkey(id,email),
-      assigned_to:users!tickets_assigned_to_fkey(id,email)
-    `
-    )
-    .eq("status", "New")
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
-  if (!data) return [];
-
-  const typedData = data as unknown as TicketWithUsers[];
-
-  return typedData.map(({ caller, assigned_to, ...ticket }) => ({
-    ...ticket,
-    caller: caller ? { id: caller.id, email: caller.email } : null,
-    assigned_to: assigned_to
-      ? { id: assigned_to.id, email: assigned_to.email }
-      : null,
-  }));
-};
-
-export const getResolvedTicketsStats = async (): Promise<
-  { date: string; count: number }[]
-> => {
-  const { data, error } = await supabase
-    .from("tickets")
-    .select("resolution_date")
-    .gte(
-      "resolution_date",
-      new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString()
-    )
-    .not("resolution_date", "is", null)
-    .eq("status", "Resolved");
-
-  if (error) throw error;
-
-  const countsByDate = data.reduce<Record<string, number>>((acc, ticket) => {
-    const utcDate = new Date(ticket.resolution_date!);
-
-    const localYear = utcDate.getFullYear();
-    const localMonth = String(utcDate.getMonth() + 1).padStart(2, "0");
-    const localDay = String(utcDate.getDate()).padStart(2, "0");
-
-    const localDateString = `${localYear}-${localMonth}-${localDay}`;
-
-    acc[localDateString] = (acc[localDateString] || 0) + 1;
-    return acc;
-  }, {});
-
-  return Object.entries(countsByDate)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, count]) => ({ date, count }));
-};
-
-export const getOpenTicketsStats = async (): Promise<
-  { date: string; count: number }[]
-> => {
-  const { data, error } = await supabase
-    .from("tickets")
-    .select("estimated_resolution_date, status")
-    .in("status", ["New", "On Hold", "In Progress"]);
-
-  if (error) throw error;
-
-  const countsByDate = data.reduce<Record<string, number>>((acc, ticket) => {
-    if (!ticket.estimated_resolution_date) {
-      acc["No ETA"] = (acc["No ETA"] || 0) + 1;
-      return acc;
-    }
-
-    // 🔹 Zamiana UTC → lokalna data
-    const utcDate = new Date(ticket.estimated_resolution_date);
-    const localYear = utcDate.getFullYear();
-    const localMonth = String(utcDate.getMonth() + 1).padStart(2, "0");
-    const localDay = String(utcDate.getDate()).padStart(2, "0");
-    const localDateString = `${localYear}-${localMonth}-${localDay}`;
-
-    acc[localDateString] = (acc[localDateString] || 0) + 1;
-    return acc;
-  }, {});
-
-  // 🔹 Sortowanie: "No ETA" na początku, daty rosnąco
-  const sorted = Object.entries(countsByDate).sort(([a], [b]) => {
-    if (a === "No ETA") return -1;
-    if (b === "No ETA") return 1;
-    return a.localeCompare(b);
+  const res = await fetch(`${API_URL}/tickets/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updates),
   });
 
-  return sorted.map(([date, count]) => ({ date, count }));
+  if (!res.ok) {
+    throw new Error(`Update ticket failed: ${res.statusText}`);
+  }
+
+  const json = await res.json();
+  return json.data ?? [];
 };
 
-export const getTicketsByOperator = async (): Promise<
-  {
-    operator: { id: string | null; name: string; email: string | null };
-    count: number;
-  }[]
+export const deleteTicket = async (id: string): Promise<void> => {
+  const res = await fetch(`${API_URL}/tickets/${id}`, { method: "DELETE" });
+  if (!res.ok) {
+    throw new Error(`Delete ticket failed: ${res.statusText}`);
+  }
+};
+
+export const getResolvedTicketsStats = async (): Promise<TicketsStats[]> => {
+  const res = await fetch(`${API_URL}/tickets/stats/resolved`);
+  if (!res.ok) {
+    throw new Error(`Get resolved tickets stats failed: ${res.statusText}`);
+  }
+
+  const json = await res.json();
+  return json.data ?? [];
+};
+
+export const getOpenTicketsStats = async (): Promise<TicketsStats[]> => {
+  const res = await fetch(`${API_URL}/tickets/stats/open`);
+  if (!res.ok) {
+    throw new Error(`Get open tickets stats failed: ${res.statusText}`);
+  }
+
+  const json = await res.json();
+
+  return json.data ?? [];
+};
+
+export const getOperatorTicketsStats = async (): Promise<
+  OperatorTicketsStats[]
 > => {
-  const { data, error } = await supabase
-    .from("tickets")
-    .select(
-      `
-      assigned_to:users!tickets_assigned_to_fkey(id, name, email),
-      status
-    `
-    )
-    .neq("status", "Resolved");
+  const res = await fetch(`${API_URL}/tickets/stats/operators`);
+  if (!res.ok) {
+    throw new Error(`Get operator tickets stats failed: ${res.statusText}`);
+  }
 
-  if (error) throw error;
-
-  const countsByOperator = (data ?? []).reduce<
-    Record<
-      string,
-      {
-        operator: { id: string | null; name: string; email: string | null };
-        count: number;
-      }
-    >
-  >((acc, ticket) => {
-    const operator = ticket.assigned_to;
-    const key = operator?.id ?? "unassigned";
-
-    if (!acc[key]) {
-      acc[key] = {
-        operator: {
-          id: operator?.id ?? null,
-          name: operator?.name ?? "Unassigned",
-          email: operator?.email ?? null,
-        },
-        count: 0,
-      };
-    }
-
-    acc[key].count += 1;
-    return acc;
-  }, {});
-
-  return Object.values(countsByOperator);
+  const json = await res.json();
+  return json.data ?? [];
 };

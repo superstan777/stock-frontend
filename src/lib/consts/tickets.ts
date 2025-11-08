@@ -1,6 +1,14 @@
-import type { TicketRow } from "../types/tickets";
+import type { TicketRow, TicketStatus } from "../types/tickets";
 import type { ColumnOption } from "../types/table";
 import { formatLabel } from "../utils";
+
+export const ALL_TICKET_STATUSES: TicketStatus[] = [
+  "new",
+  "on_hold",
+  "in_progress",
+  "resolved",
+  "cancelled",
+];
 
 type AllTicketKeys = keyof TicketRow;
 
@@ -54,28 +62,3 @@ export const TICKET_COLUMNS: ColumnOption[] = TICKET_FILTER_KEYS.map((key) => {
     type: "text",
   };
 });
-
-const USER_TICKETS_FILTER_KEYS: Array<TicketFilterKeyType> = [
-  "number",
-  "title",
-  "status",
-];
-
-export const USER_TICKETS_COLUMNS: ColumnOption[] =
-  USER_TICKETS_FILTER_KEYS.map((key) => {
-    if (key === "number") {
-      return {
-        value: key,
-        label: formatLabel(key),
-        type: "text",
-        route: "tickets",
-        routeIdPath: "id",
-      };
-    }
-
-    return {
-      value: key,
-      label: formatLabel(key),
-      type: "text",
-    };
-  });
