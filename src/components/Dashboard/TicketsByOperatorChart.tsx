@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getTicketsByOperator } from "@/lib/api/tickets";
+import { getOperatorTicketsStats } from "@/lib/api/tickets";
 import { ChartBarDefault } from "../ui/chart-bar-default";
 import { Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -25,8 +25,8 @@ export const TicketsByOperatorChart = () => {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["dashboard", "tickets-by-operator"],
-    queryFn: getTicketsByOperator,
+    queryKey: ["dashboard", "operator-tickets-stats"],
+    queryFn: getOperatorTicketsStats,
   });
 
   if (isLoading)
@@ -46,7 +46,7 @@ export const TicketsByOperatorChart = () => {
 
   const handleBarClick = (email: string | null) => {
     const params = new URLSearchParams(searchParams);
-    params.set("status", "New,On Hold,In Progress");
+    params.set("status", "new,on_hold,in_progress");
 
     if (!email) {
       params.set("assigned_to", "null");
@@ -62,7 +62,7 @@ export const TicketsByOperatorChart = () => {
 
   const chartData = data.map((d) => ({
     name: d.operator.name,
-    email: d.operator.id ? d.operator.email : null,
+    email: d.operator.email,
     count: d.count,
   }));
 

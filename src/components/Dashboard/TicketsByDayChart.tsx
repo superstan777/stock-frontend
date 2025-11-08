@@ -46,7 +46,7 @@ export const TicketsByDayChart = () => {
 
   const handleBarClick = (date: string) => {
     const params = new URLSearchParams(searchParams);
-    params.set("status", "New,On Hold,In Progress");
+    params.set("status", "new,on_hold,in_progress");
 
     if (date === "No ETA") {
       params.set("estimated_resolution_date", "null");

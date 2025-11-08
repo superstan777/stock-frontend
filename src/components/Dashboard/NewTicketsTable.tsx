@@ -2,14 +2,14 @@
 
 import { DataTable } from "@/components/ListPage/DataTable";
 import { useQuery } from "@tanstack/react-query";
-import { getNewTickets } from "@/lib/api/tickets";
+import { getTickets } from "@/lib/api/tickets";
 import { TICKET_COLUMNS } from "@/lib/consts/tickets";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const NewTicketsTable = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["dashboard", "new-tickets"],
-    queryFn: () => getNewTickets(),
+    queryFn: () => getTickets([{ key: "status", value: "new" }]),
   });
 
   return (
@@ -19,7 +19,7 @@ export const NewTicketsTable = () => {
       </CardHeader>
       <CardContent className="px-2 sm:p-6">
         <DataTable
-          data={data}
+          data={data?.tickets ?? []}
           isLoading={isLoading}
           error={error}
           columns={TICKET_COLUMNS}
