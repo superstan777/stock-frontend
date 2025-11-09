@@ -1,3 +1,4 @@
+import type { EntityFilter } from "./common";
 export type UserRow = {
   created_at: string;
   email: string;
@@ -14,3 +15,8 @@ export type UserUpdate = {
   email?: string;
   name?: string;
 };
+
+type AllUserKeys = keyof UserRow;
+export type UserFilterKeyType = Exclude<AllUserKeys, "id" | "created_at">;
+
+export type UserFilter = EntityFilter<UserFilterKeyType>;

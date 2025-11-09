@@ -1,3 +1,4 @@
+import type { EntityFilter } from "./common";
 export type DevicesColumnType = {
   label: string;
   value: string;
@@ -43,3 +44,18 @@ export type DeviceUpdate = {
   order_id?: string | undefined;
   serial_number?: string | undefined;
 };
+
+type AllComputerKeys = keyof DeviceRow;
+export type ComputerFilterKeyType = Exclude<
+  AllComputerKeys,
+  "id" | "created_at" | "device_type"
+>;
+
+type AllMonitorKeys = keyof DeviceRow;
+export type MonitorFilterKeyType = Exclude<
+  AllMonitorKeys,
+  "id" | "created_at" | "device_type"
+>;
+
+export type ComputerFilter = EntityFilter<ComputerFilterKeyType>;
+export type MonitorFilter = EntityFilter<MonitorFilterKeyType>;

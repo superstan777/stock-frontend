@@ -1,13 +1,6 @@
 import type { ColumnOption } from "../types/table";
 import { formatLabel } from "../utils";
-
-export type RelationFilterKeyType =
-  | "user.email"
-  | "device.serial_number"
-  | "device.model"
-  | "device.device_type"
-  | "start_date"
-  | "end_date";
+import type { RelationFilterKeyType } from "../types/relations";
 
 const RELATION_FILTER_KEYS: RelationFilterKeyType[] = [
   "user.email",

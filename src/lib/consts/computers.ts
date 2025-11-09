@@ -1,20 +1,14 @@
-import type { DeviceRow } from "../types/devices";
 import type { ColumnOption } from "../types/table";
 import { formatLabel } from "../utils";
 import { ALL_INSTALL_STATUSES } from "./devices";
+import type { ComputerFilterKeyType } from "../types/devices";
 
-type AllComputerKeys = keyof DeviceRow;
-export type ComputerFilterKeyType = Exclude<
-  AllComputerKeys,
-  "id" | "created_at"
->;
-
-const COMPUTER_FILTER_KEYS = [
+const COMPUTER_FILTER_KEYS: ComputerFilterKeyType[] = [
   "serial_number",
   "model",
   "order_id",
   "install_status",
-] as const;
+];
 
 export const COMPUTER_COLUMNS: ColumnOption[] = COMPUTER_FILTER_KEYS.map(
   (key) => {

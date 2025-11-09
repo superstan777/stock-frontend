@@ -1,4 +1,4 @@
-import type { TicketRow, TicketStatus } from "../types/tickets";
+import type { TicketStatus } from "../types/tickets";
 import type { ColumnOption } from "../types/table";
 import { formatLabel } from "../utils";
 
@@ -9,13 +9,7 @@ export const ALL_TICKET_STATUSES: TicketStatus[] = [
   "resolved",
   "cancelled",
 ];
-
-type AllTicketKeys = keyof TicketRow;
-
-export type TicketFilterKeyType = Exclude<
-  AllTicketKeys,
-  "id" | "created_at" | "description" | "caller_id"
->;
+// const TICKET_FILTER_KEYS: Array<TicketFilterKeyType> = [ // typy do poprawy
 
 const TICKET_FILTER_KEYS = [
   "number",

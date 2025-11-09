@@ -7,13 +7,8 @@ import type {
   TicketsStats,
 } from "../types/tickets";
 import type { MetaData } from "../types/table";
-
-export interface TicketFilter {
-  key: string;
-  value: string;
-}
-
-const API_URL = "http://localhost:8080/api";
+import { API_URL } from "../consts/api";
+import type { TicketFilter } from "../types/tickets";
 
 export const getTickets = async (
   filters: TicketFilter[] = [],
@@ -21,12 +16,10 @@ export const getTickets = async (
 ): Promise<{ tickets: TicketWithUsers[]; meta: MetaData }> => {
   const params = new URLSearchParams();
 
-  // najpierw filtry
   for (const f of filters) {
     if (f.value) params.append(f.key, f.value);
   }
 
-  // na końcu page
   params.append("page", page.toString());
 
   const res = await fetch(`${API_URL}/tickets?${params.toString()}`);

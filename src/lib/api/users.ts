@@ -1,12 +1,6 @@
 import { type UserRow, type UserInsert, type UserUpdate } from "../types/users";
-import type { UserFilterKeyType } from "../consts/users";
-
-export type UserFilter = {
-  key: UserFilterKeyType;
-  value: string;
-};
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import type { UserFilter } from "../types/users";
+import { API_URL } from "../consts/api";
 
 export const getUsers = async (
   filters: UserFilter[] = [],
@@ -17,10 +11,8 @@ export const getUsers = async (
 }> => {
   const params = new URLSearchParams();
 
-  // Paginacja
   params.append("page", page.toString());
 
-  // Filtry
   for (const { key, value } of filters) {
     if (value) params.append(key, value);
   }

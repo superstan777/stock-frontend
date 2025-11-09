@@ -1,6 +1,5 @@
 import type { WorknoteInsert, WorknoteWithAuthor } from "../types/worknotes";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+import { API_URL } from "../consts/api";
 
 export const getWorknotes = async (
   ticketId: string

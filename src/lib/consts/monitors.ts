@@ -1,17 +1,14 @@
-import type { DeviceRow } from "../types/devices";
 import type { ColumnOption } from "../types/table";
 import { formatLabel } from "../utils";
 import { ALL_INSTALL_STATUSES } from "./devices";
+import type { MonitorFilterKeyType } from "../types/devices";
 
-type AllMonitorKeys = keyof DeviceRow;
-export type MonitorFilterKeyType = Exclude<AllMonitorKeys, "id" | "created_at">;
-
-const MONITOR_FILTER_KEYS = [
+const MONITOR_FILTER_KEYS: MonitorFilterKeyType[] = [
   "serial_number",
   "model",
   "order_id",
   "install_status",
-] as const;
+];
 
 export const MONITOR_COLUMNS: ColumnOption[] = MONITOR_FILTER_KEYS.map(
   (key) => {

@@ -1,8 +1,6 @@
 import type { RelationWithDetails } from "@/lib/types/relations";
+import { API_URL } from "../consts/api";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
-
-// --- CREATE RELATION ---
 export const createRelation = async (input: {
   user_id: string;
   device_id: string;
@@ -18,7 +16,6 @@ export const createRelation = async (input: {
   return res.json();
 };
 
-// --- END RELATION ---
 export const endRelation = async (relationId: string): Promise<void> => {
   const res = await fetch(`${API_URL}/relations/${relationId}/end`, {
     method: "PATCH",
@@ -27,7 +24,6 @@ export const endRelation = async (relationId: string): Promise<void> => {
   if (!res.ok) throw new Error("Failed to end relation");
 };
 
-// --- GET RELATIONS BY DEVICE ---
 export const getRelationsByDevice = async (
   deviceId: string
 ): Promise<RelationWithDetails[]> => {
@@ -42,7 +38,6 @@ export const getRelationsByDevice = async (
   return res.json();
 };
 
-// --- GET RELATIONS BY USER ---
 export const getRelationsByUser = async (
   userId: string
 ): Promise<RelationWithDetails[]> => {
@@ -54,7 +49,6 @@ export const getRelationsByUser = async (
   return res.json();
 };
 
-// --- CHECK ACTIVE RELATION ---
 export const hasActiveRelation = async (deviceId: string): Promise<boolean> => {
   const res = await fetch(
     `${API_URL}/relations/devices/${deviceId}/relations/active`,

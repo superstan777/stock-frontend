@@ -1,4 +1,5 @@
 import type { ChartBarData } from "@/components/ui/chart-bar-default";
+import type { EntityFilter } from "./common";
 
 export type TicketRow = {
   assigned_to: string | null;
@@ -64,3 +65,12 @@ export type TicketStatus =
   | "in_progress"
   | "resolved"
   | "cancelled";
+
+type AllTicketKeys = keyof TicketRow;
+
+export type TicketFilterKeyType = Exclude<
+  AllTicketKeys,
+  "id" | "created_at" | "description" | "caller_id"
+>;
+
+export type TicketFilter = EntityFilter<TicketFilterKeyType>;

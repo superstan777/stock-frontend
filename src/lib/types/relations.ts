@@ -31,3 +31,11 @@ export type RelationWithDetails = Omit<RelationRow, "user_id" | "device_id"> & {
   user: UserRow;
   device: DeviceRow;
 };
+
+export type RelationFilterKeyType =
+  | "user.email"
+  | "device.serial_number"
+  | "device.model"
+  | "device.device_type"
+  | "start_date"
+  | "end_date";

@@ -5,17 +5,12 @@ import type {
   DeviceInsert,
 } from "../types/devices";
 import type { MetaData } from "../types/table";
-
-export interface DeviceFilter {
-  key: string;
-  value: string;
-}
-
-const API_URL = "http://localhost:8080/api";
+import { API_URL } from "../consts/api";
+import type { MonitorFilter, ComputerFilter } from "../types/devices";
 
 export const getDevices = async (
   deviceType: DeviceType,
-  filters: DeviceFilter[] = [],
+  filters: MonitorFilter[] | ComputerFilter[] = [],
   page: number = 1
 ): Promise<{
   devices: DeviceRow[];
