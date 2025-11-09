@@ -1,4 +1,3 @@
-import { Database } from "../types/supabase";
 import type { DeviceRow } from "./devices";
 import type { UserRow } from "./users";
 
@@ -7,12 +6,27 @@ export type DevicesColumnType = {
   value: string;
 };
 
-export type RelationRow = Database["public"]["Tables"]["relations"]["Row"];
-export type RelationInsert =
-  Database["public"]["Tables"]["relations"]["Insert"];
-export type RelationUpdate =
-  Database["public"]["Tables"]["relations"]["Update"];
-
+export type RelationRow = {
+  device_id: string;
+  end_date: string | null;
+  id: string;
+  start_date: string;
+  user_id: string;
+};
+export type RelationInsert = {
+  device_id: string;
+  end_date?: string | null | undefined;
+  id?: string | undefined;
+  start_date: string;
+  user_id: string;
+};
+export type RelationUpdate = {
+  device_id?: string | undefined;
+  end_date?: string | null | undefined;
+  id?: string | undefined;
+  start_date?: string | undefined;
+  user_id?: string | undefined;
+};
 export type RelationWithDetails = Omit<RelationRow, "user_id" | "device_id"> & {
   user: UserRow;
   device: DeviceRow;
