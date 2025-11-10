@@ -3,15 +3,32 @@ import { render, screen } from "@testing-library/react";
 import { UserTabs } from "@/components/UsersPage/UserTabs";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { getRelationsByUser } from "@/lib/api/relations";
-import { getUserTickets } from "@/lib/api/tickets";
+import { getTickets } from "@/lib/api/tickets";
 import type { RelationWithDetails } from "@/lib/types/relations";
-import type { TicketRow } from "@/lib/types/tickets";
+import type { TicketWithUsers } from "@/lib/types/tickets";
 
 jest.mock("@/lib/api/relations", () => ({
   getRelationsByUser: jest.fn(() => Promise.resolve([{ id: "r1" }])),
 }));
 jest.mock("@/lib/api/tickets", () => ({
-  getUserTickets: jest.fn(() => Promise.resolve({ data: [{ id: "t1" }] })),
+  getTickets: jest.fn(() =>
+    Promise.resolve({
+      data: [
+        {
+          id: "t1",
+          number: 1,
+          title: "Ticket 1",
+          status: "new",
+          description: null,
+          created_at: "2025-01-01",
+          resolution_date: null,
+          estimated_resolution_date: null,
+          caller: { id: "u1", email: "caller@test.com" },
+          operator: { id: "o1", email: "operator@test.com" },
+        } as TicketWithUsers,
+      ],
+    })
+  ),
 }));
 
 jest.mock("@tanstack/react-query", () => {
@@ -27,42 +44,10 @@ jest.mock("@/components/UsersPage/RelationForm", () => ({
   RelationForm: () => <div data-testid="relation-form" />,
 }));
 
-jest.mock("@/components/UsersPage/UserDevicesList", () => ({
-  UserDevicesList: ({
-    userId,
-    relations,
-    isLoading,
-    isError,
-    error,
-  }: {
-    userId: string;
-    relations: RelationWithDetails[];
-    isLoading: boolean;
-    isError: boolean;
-    error: unknown;
-  }) => (
-    <div data-testid="user-devices-list">
-      {JSON.stringify({ userId, relations, isLoading, isError, error })}
-    </div>
-  ),
-}));
-
-jest.mock("@/components/UsersPage/UserTicketsList", () => ({
-  UserTicketsList: ({
-    userId,
-    tickets,
-    isLoading,
-    isError,
-    error,
-  }: {
-    userId: string;
-    tickets: TicketRow[];
-    isLoading: boolean;
-    isError: boolean;
-    error: unknown;
-  }) => (
-    <div data-testid="user-tickets-list">
-      {JSON.stringify({ userId, tickets, isLoading, isError, error })}
+jest.mock("@/components/ListPage/DataTable", () => ({
+  DataTable: ({ data, isLoading, error, entity }: any) => (
+    <div data-testid={`data-table-${entity}`}>
+      {JSON.stringify({ data, isLoading, error })}
     </div>
   ),
 }));
@@ -118,10 +103,12 @@ describe("UserTabs", () => {
     }
 
     expect(getRelationsByUser).toHaveBeenCalledWith("u1");
-    expect(getUserTickets).toHaveBeenCalledWith("u1");
+    expect(getTickets).toHaveBeenCalledWith([
+      { key: "caller.id", value: "u1" },
+    ]);
   });
 
-  it("renders RelationForm and lists with correct props", () => {
+  it("renders RelationForm and DataTables with correct props", () => {
     mockUseQuery.mockImplementation(({ queryKey }: { queryKey: string[] }) => {
       if (queryKey[0] === "userRelations")
         return {
@@ -132,7 +119,22 @@ describe("UserTabs", () => {
         };
       if (queryKey[0] === "userTickets")
         return {
-          data: { data: [{ id: "t1" }] },
+          data: {
+            data: [
+              {
+                id: "t1",
+                number: 1,
+                title: "Ticket 1",
+                status: "new",
+                description: null,
+                created_at: "2025-01-01",
+                resolution_date: null,
+                estimated_resolution_date: null,
+                caller: { id: "u1", email: "caller@test.com" },
+                operator: { id: "o1", email: "operator@test.com" },
+              } as TicketWithUsers,
+            ],
+          },
           isLoading: false,
           isError: false,
           error: null,
@@ -141,9 +143,10 @@ describe("UserTabs", () => {
     });
 
     render(<UserTabs userId="u1" />);
+
     expect(screen.getByTestId("relation-form")).toBeInTheDocument();
-    expect(screen.getByTestId("user-devices-list")).toHaveTextContent('"r1"');
-    expect(screen.getByTestId("user-tickets-list")).toHaveTextContent('"t1"');
+    expect(screen.getByTestId("data-table-relation")).toHaveTextContent('"r1"');
+    expect(screen.getByTestId("data-table-ticket")).toHaveTextContent('"t1"');
   });
 
   it("handles loading and error states", () => {
@@ -152,7 +155,7 @@ describe("UserTabs", () => {
         return { data: [], isLoading: true, isError: false, error: null };
       if (queryKey[0] === "userTickets")
         return {
-          data: [],
+          data: { data: [] },
           isLoading: false,
           isError: true,
           error: "Ticket error",
@@ -161,11 +164,12 @@ describe("UserTabs", () => {
     });
 
     render(<UserTabs userId="u1" />);
-    expect(screen.getByTestId("user-devices-list")).toHaveTextContent(
+
+    expect(screen.getByTestId("data-table-relation")).toHaveTextContent(
       '"isLoading":true'
     );
-    expect(screen.getByTestId("user-tickets-list")).toHaveTextContent(
-      '"isError":true'
+    expect(screen.getByTestId("data-table-ticket")).toHaveTextContent(
+      '"error":true'
     );
   });
 });

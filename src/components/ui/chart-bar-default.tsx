@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/chart";
 
 export interface ChartBarData {
-  [key: string]: string | number | null; // ✅ dodajemy null
+  [key: string]: string | number | null;
 }
 
 interface ChartBarDefaultProps<T extends ChartBarData> {

@@ -17,7 +17,7 @@ export function TicketPageContent({ ticket }: { ticket: TicketWithUsers }) {
   const [worknote, setWorknote] = useState("");
   const queryClient = useQueryClient();
   // temporary solution, will be changed after migration to own backend
-  const currentUserId = "04121166-bc6b-4cc9-99b4-5115185e9ff2";
+  const currentUserId = "142053c6-ef18-4f8a-b9d0-a4ee5ea2a30c";
 
   const mutation = useMutation({
     mutationFn: async (formData: TicketUpdate) => {

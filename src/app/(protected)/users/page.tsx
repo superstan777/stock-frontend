@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import ListPage from "@/components/ListPage/ListPage";
 import { getUsers } from "@/lib/api/users";
 import { USER_COLUMNS } from "@/lib/consts/users";
-import type { UserFilter } from "@/lib/api/users";
+import type { UserFilterKeyType, UserFilter } from "@/lib/types/users";
 
 export default function UsersPage() {
   const searchParams = useSearchParams();
@@ -15,7 +15,7 @@ export default function UsersPage() {
 
   searchParams.forEach((value, key) => {
     if (!["page"].includes(key) && value) {
-      filters.push({ key: key as UserFilter["key"], value });
+      filters.push({ key: key as UserFilterKeyType, value });
     }
   });
 
@@ -28,7 +28,7 @@ export default function UsersPage() {
     <ListPage
       entity="user"
       columns={USER_COLUMNS}
-      tableData={data?.users}
+      tableData={data?.data}
       isLoading={isLoading}
       error={error}
       metaData={data?.meta}

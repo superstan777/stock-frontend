@@ -3,12 +3,13 @@
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { UserDevicesList } from "./UserDevicesList";
-import { UserTicketsList } from "./UserTicketsList";
 import { getRelationsByUser } from "@/lib/api/relations";
-import { getUserTickets } from "@/lib/api/tickets";
+import { getTickets } from "@/lib/api/tickets";
 import type { RelationWithDetails } from "@/lib/types/relations";
 import { RelationForm } from "./RelationForm";
+import { DataTable } from "../ListPage/DataTable";
+import { TICKET_COLUMNS } from "@/lib/consts/tickets";
+import { RELATION_COLUMNS } from "@/lib/consts/relations";
 
 interface UserTabsProps {
   userId: string;
@@ -27,7 +28,7 @@ export function UserTabs({ userId }: UserTabsProps) {
 
     queryClient.prefetchQuery({
       queryKey: ["userTickets", userId],
-      queryFn: () => getUserTickets(userId),
+      queryFn: () => getTickets([{ key: "caller.id", value: userId }]),
     });
   }, [userId, queryClient]);
 
@@ -38,7 +39,7 @@ export function UserTabs({ userId }: UserTabsProps) {
 
   const ticketsQuery = useQuery({
     queryKey: ["userTickets", userId],
-    queryFn: () => getUserTickets(userId),
+    queryFn: () => getTickets([{ key: "caller.id", value: userId }]),
   });
 
   const triggerClass =
@@ -63,22 +64,22 @@ export function UserTabs({ userId }: UserTabsProps) {
 
         <TabsContent value="devices">
           <RelationForm defaultUserId={userId} />
-          <UserDevicesList
-            userId={userId}
-            relations={relationsQuery.data ?? []}
+          <DataTable
+            data={relationsQuery.data}
+            columns={RELATION_COLUMNS}
             isLoading={relationsQuery.isLoading}
-            isError={relationsQuery.isError}
             error={relationsQuery.error}
+            entity="relation"
           />
         </TabsContent>
 
         <TabsContent value="tickets">
-          <UserTicketsList
-            userId={userId}
-            tickets={ticketsQuery.data?.data ?? []}
+          <DataTable
+            data={ticketsQuery.data?.data}
+            entity="ticket"
+            columns={TICKET_COLUMNS}
             isLoading={ticketsQuery.isLoading}
-            isError={ticketsQuery.isError}
-            error={ticketsQuery.error}
+            error={ticketsQuery.isError}
           />
         </TabsContent>
       </Tabs>

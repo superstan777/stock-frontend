@@ -13,7 +13,6 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { TicketWithUsers, TicketUpdate } from "@/lib/types/tickets";
-import { Constants } from "@/lib/types/supabase";
 import { UserCombobox } from "../DevicesPage/UserCombobox";
 import { DatePicker } from "../ui/date-picker";
 import { ALL_TICKET_STATUSES } from "@/lib/consts/tickets";
@@ -47,7 +46,7 @@ export const TicketForm: React.FC<TicketFormProps> = ({ ticket, onSubmit }) => {
       title: ticket.title ?? "",
       description: ticket.description ?? "",
       status: ticket.status ?? "new",
-      assigned_to: ticket.assigned_to?.id ?? null,
+      assigned_to: ticket.operator?.id ?? null,
       estimated_resolution_date: ticket.estimated_resolution_date
         ? new Date(ticket.estimated_resolution_date)
         : null,

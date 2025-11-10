@@ -6,7 +6,7 @@ export const getUsers = async (
   filters: UserFilter[] = [],
   page: number = 1
 ): Promise<{
-  users: UserRow[];
+  data: UserRow[];
   meta: { count: number; current_page: number; total_pages: number };
 }> => {
   const params = new URLSearchParams();
@@ -23,7 +23,8 @@ export const getUsers = async (
   }
 
   const json = await res.json();
-  return json.data;
+
+  return json;
 };
 
 export const getUser = async (id: string): Promise<UserRow | null> => {
@@ -34,7 +35,7 @@ export const getUser = async (id: string): Promise<UserRow | null> => {
   }
   const json = await res.json();
 
-  return json.data ?? null;
+  return json.data;
 };
 
 export const addUser = async (user: UserInsert): Promise<UserRow> => {

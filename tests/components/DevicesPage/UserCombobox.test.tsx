@@ -104,7 +104,7 @@ describe("UserCombobox", () => {
 
   it("renders placeholder when not loading and no user selected", () => {
     mockUseQuery.mockReturnValue({
-      data: mockUsers,
+      data: { data: mockUsers },
       isLoading: false,
     });
 
@@ -114,7 +114,7 @@ describe("UserCombobox", () => {
 
   it("renders selected user email", () => {
     mockUseQuery.mockReturnValue({
-      data: mockUsers,
+      data: { data: mockUsers },
       isLoading: false,
     });
 
@@ -129,7 +129,7 @@ describe("UserCombobox", () => {
   it("calls onChange and closes when user is selected", () => {
     const onChange = jest.fn();
     mockUseQuery.mockReturnValue({
-      data: mockUsers,
+      data: { data: mockUsers },
       isLoading: false,
     });
 
@@ -144,7 +144,7 @@ describe("UserCombobox", () => {
   it("does not call onChange when disabled", () => {
     const onChange = jest.fn();
     mockUseQuery.mockReturnValue({
-      data: mockUsers,
+      data: { data: mockUsers },
       isLoading: false,
     });
 
@@ -158,7 +158,7 @@ describe("UserCombobox", () => {
 
   it("shows 'No user found.' when list is empty", () => {
     mockUseQuery.mockReturnValue({
-      data: [],
+      data: { data: [] },
       isLoading: false,
     });
 

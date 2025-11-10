@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import ListPage from "@/components/ListPage/ListPage";
 import { getTickets } from "@/lib/api/tickets";
 import { TICKET_COLUMNS } from "@/lib/consts/tickets";
-import type { TicketFilter } from "@/lib/api/tickets";
+import type { TicketFilter, TicketFilterKeyType } from "@/lib/types/tickets";
 
 export default function TicketsPage() {
   const searchParams = useSearchParams();
@@ -15,7 +15,7 @@ export default function TicketsPage() {
 
   searchParams.forEach((value, key) => {
     if (!["page"].includes(key) && value) {
-      filters.push({ key: key as TicketFilter["key"], value });
+      filters.push({ key: key as TicketFilterKeyType, value });
     }
   });
 
@@ -28,7 +28,7 @@ export default function TicketsPage() {
     <ListPage
       entity="ticket"
       columns={TICKET_COLUMNS}
-      tableData={data?.tickets}
+      tableData={data?.data}
       isLoading={isLoading}
       error={error}
       metaData={data?.meta}

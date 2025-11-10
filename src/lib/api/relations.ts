@@ -35,7 +35,8 @@ export const getRelationsByDevice = async (
   );
 
   if (!res.ok) throw new Error("Failed to fetch relations by device");
-  return res.json();
+  const json = await res.json();
+  return json.data;
 };
 
 export const getRelationsByUser = async (
@@ -46,7 +47,8 @@ export const getRelationsByUser = async (
   });
 
   if (!res.ok) throw new Error("Failed to fetch relations by user");
-  return res.json();
+  const json = await res.json();
+  return json.data;
 };
 
 export const hasActiveRelation = async (deviceId: string): Promise<boolean> => {

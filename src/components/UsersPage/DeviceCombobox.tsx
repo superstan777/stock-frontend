@@ -40,8 +40,7 @@ export function DeviceCombobox({
     queryFn: getAllDevices,
   });
 
-  const devices: DeviceRow[] = data?.devices ?? [];
-
+  const devices: DeviceRow[] = data?.data ?? [];
   const selectedDevice = devices.find((d) => d.id === value) ?? null;
 
   return (
@@ -62,9 +61,7 @@ export function DeviceCombobox({
           ) : isError ? (
             "Error loading devices"
           ) : selectedDevice ? (
-            `${selectedDevice.device_type.toUpperCase()} • ${
-              selectedDevice.serial_number
-            } (${selectedDevice.model})`
+            selectedDevice.serial_number
           ) : (
             "Select device..."
           )}
@@ -78,7 +75,7 @@ export function DeviceCombobox({
       >
         <Command>
           <CommandInput
-            placeholder="Search by serial or model..."
+            placeholder="Search by serial number..."
             className="h-9"
             disabled={disabled || isLoading}
           />
@@ -94,7 +91,7 @@ export function DeviceCombobox({
               {devices.map((device) => (
                 <CommandItem
                   key={device.id}
-                  value={device.id}
+                  value={device.serial_number}
                   onSelect={() => {
                     if (!disabled) {
                       onChange(device.id);
@@ -102,9 +99,7 @@ export function DeviceCombobox({
                     }
                   }}
                 >
-                  <span>{`${device.device_type.toUpperCase()} • ${
-                    device.serial_number
-                  } (${device.model})`}</span>
+                  <span>{device.serial_number}</span>
                   <Check
                     className={cn(
                       "ml-auto",

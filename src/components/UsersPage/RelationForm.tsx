@@ -66,7 +66,7 @@ export function RelationForm({
       createRelationMutation.mutate({
         user_id: userId,
         device_id: deviceId,
-        start_date: startDate.toISOString().split("T")[0],
+        start_date: startDate.toISOString(),
       });
     } catch (error) {
       toast.error("Error verifying relation status");

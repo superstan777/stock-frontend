@@ -123,7 +123,7 @@ describe("TicketsByDayChart", () => {
       expect(url.searchParams.get("estimated_resolution_date")).toBe(
         "2024-10-01"
       );
-      expect(url.searchParams.get("status")).toBe("New,On Hold,In Progress");
+      expect(url.searchParams.get("status")).toBe("new,on_hold,in_progress");
       expect(url.searchParams.get("page")).toBe("1");
     });
   });
@@ -146,7 +146,7 @@ describe("TicketsByDayChart", () => {
       const pushedUrl = mockPush.mock.calls[0][0] as string;
       const url = new URL(pushedUrl, "http://localhost");
       expect(url.searchParams.get("estimated_resolution_date")).toBe("null");
-      expect(url.searchParams.get("status")).toBe("New,On Hold,In Progress");
+      expect(url.searchParams.get("status")).toBe("new,on_hold,in_progress");
       expect(url.searchParams.get("page")).toBe("1");
     });
   });

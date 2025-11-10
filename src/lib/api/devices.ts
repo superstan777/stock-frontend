@@ -13,7 +13,7 @@ export const getDevices = async (
   filters: MonitorFilter[] | ComputerFilter[] = [],
   page: number = 1
 ): Promise<{
-  devices: DeviceRow[];
+  data: DeviceRow[];
   meta: MetaData;
 }> => {
   const params = new URLSearchParams();
@@ -32,7 +32,7 @@ export const getDevices = async (
 
   const json = await res.json();
 
-  return json.data;
+  return json;
 };
 
 export const addDevice = async (device: DeviceInsert): Promise<DeviceRow[]> => {
@@ -82,7 +82,7 @@ export const getDevice = async (id: string): Promise<DeviceRow | null> => {
 };
 
 export const getAllDevices = async (): Promise<{
-  devices: DeviceRow[];
+  data: DeviceRow[];
   meta: MetaData;
 }> => {
   const res = await fetch(`${API_URL}/devices`);
@@ -90,7 +90,6 @@ export const getAllDevices = async (): Promise<{
     throw new Error(`Get all devices failed: ${res.statusText}`);
   }
   const json = await res.json();
-  console.log(json.data);
 
-  return json.data ?? [];
+  return json;
 };

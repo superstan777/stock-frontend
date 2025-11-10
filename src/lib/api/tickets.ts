@@ -13,7 +13,7 @@ import type { TicketFilter } from "../types/tickets";
 export const getTickets = async (
   filters: TicketFilter[] = [],
   page: number = 1
-): Promise<{ tickets: TicketWithUsers[]; meta: MetaData }> => {
+): Promise<{ data: TicketWithUsers[]; meta: MetaData }> => {
   const params = new URLSearchParams();
 
   for (const f of filters) {
@@ -28,7 +28,7 @@ export const getTickets = async (
   }
 
   const json = await res.json();
-  return json.data;
+  return json;
 };
 
 export const getTicket = async (

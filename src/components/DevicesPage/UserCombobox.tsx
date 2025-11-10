@@ -35,13 +35,11 @@ export function UserCombobox({
   const [open, setOpen] = React.useState(false);
   const triggerRef = React.useRef<HTMLButtonElement | null>(null);
 
-  const { data: users = [], isLoading } = useQuery<UserRow[]>({
+  const { data, isLoading } = useQuery({
     queryKey: ["users", "all"],
-    queryFn: async () => {
-      const res = await getUsers();
-      return res.data;
-    },
+    queryFn: () => getUsers(),
   });
+  const users: UserRow[] = data?.data ?? [];
 
   const selectedUser = users.find((u) => u.id === value) ?? null;
 

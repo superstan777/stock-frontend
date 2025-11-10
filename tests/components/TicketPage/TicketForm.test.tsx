@@ -1,8 +1,8 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { TicketForm } from "@/components/TicketPage/TicketForm";
 import type { TicketWithUsers } from "@/lib/types/tickets";
-import { Constants } from "@/lib/types/supabase";
 import React from "react";
+import { ALL_TICKET_STATUSES } from "@/lib/consts/tickets";
 
 type UserComboboxProps = {
   value: string | null;
@@ -53,7 +53,7 @@ describe("TicketForm", () => {
     number: 10,
     status: "new",
     created_at: "2025-10-25T12:00:00Z",
-    assigned_to: {
+    operator: {
       id: "123e4567-e89b-12d3-a456-426614174000",
       email: "tech@a.com",
     },
@@ -149,7 +149,7 @@ describe("TicketForm", () => {
   it("handles null assigned_to correctly", async () => {
     render(
       <TicketForm
-        ticket={{ ...mockTicket, assigned_to: null }}
+        ticket={{ ...mockTicket, operator: null }}
         onSubmit={mockOnSubmit}
       />
     );
@@ -184,8 +184,8 @@ describe("TicketForm", () => {
 
   it("renders select options from Constants", () => {
     render(<TicketForm ticket={mockTicket} onSubmit={mockOnSubmit} />);
-    Constants.public.Enums.ticket_status.forEach((status) => {
-      expect(screen.getByText(status)).toBeInTheDocument();
+    ALL_TICKET_STATUSES.forEach((status) => {
+      expect(screen.getAllByText(status).length).toBeGreaterThan(0);
     });
   });
 });

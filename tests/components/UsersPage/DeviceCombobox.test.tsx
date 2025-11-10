@@ -86,7 +86,7 @@ describe("DeviceCombobox", () => {
       serial_number: "SN001",
       order_id: "ORD1",
       device_type: "computer",
-      install_status: "Deployed",
+      install_status: "deployed",
       created_at: "2025-10-01T00:00:00Z",
     },
     {
@@ -95,7 +95,7 @@ describe("DeviceCombobox", () => {
       serial_number: "SN002",
       order_id: "ORD2",
       device_type: "computer",
-      install_status: "In Inventory",
+      install_status: "in_inventory",
       created_at: "2025-10-02T00:00:00Z",
     },
   ];
@@ -105,7 +105,12 @@ describe("DeviceCombobox", () => {
   });
 
   it("renders loading state", () => {
-    mockUseQuery.mockReturnValue({ data: [], isLoading: true });
+    // loading -> data can be undefined
+    mockUseQuery.mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      isError: false,
+    });
 
     render(<DeviceCombobox value={null} onChange={jest.fn()} />);
 
@@ -115,29 +120,42 @@ describe("DeviceCombobox", () => {
   });
 
   it("renders placeholder when not loading and no device selected", () => {
-    mockUseQuery.mockReturnValue({ data: mockDevices, isLoading: false });
+    // when data exists, it must be shaped as { data: DeviceRow[] }
+    mockUseQuery.mockReturnValue({
+      data: { data: mockDevices },
+      isLoading: false,
+      isError: false,
+    });
 
     render(<DeviceCombobox value={null} onChange={jest.fn()} />);
     expect(screen.getByText("Select device...")).toBeInTheDocument();
   });
 
   it("renders selected device label", () => {
-    mockUseQuery.mockReturnValue({ data: mockDevices, isLoading: false });
+    mockUseQuery.mockReturnValue({
+      data: { data: mockDevices },
+      isLoading: false,
+      isError: false,
+    });
 
     render(<DeviceCombobox value="d2" onChange={jest.fn()} />);
 
     const label = screen.getByTestId("selected-label");
-    expect(label).toHaveTextContent(/ThinkPad/i);
     expect(label).toHaveTextContent(/SN002/i);
   });
 
   it("calls onChange when device selected", () => {
     const onChange = jest.fn();
-    mockUseQuery.mockReturnValue({ data: mockDevices, isLoading: false });
+    mockUseQuery.mockReturnValue({
+      data: { data: mockDevices },
+      isLoading: false,
+      isError: false,
+    });
 
     render(<DeviceCombobox value={null} onChange={onChange} />);
 
     const items = screen.getAllByTestId("command-item");
+    expect(items.length).toBeGreaterThan(0);
     fireEvent.click(items[0]);
 
     expect(onChange).toHaveBeenCalledWith("d1");
@@ -145,7 +163,11 @@ describe("DeviceCombobox", () => {
 
   it("does not call onChange when disabled", () => {
     const onChange = jest.fn();
-    mockUseQuery.mockReturnValue({ data: mockDevices, isLoading: false });
+    mockUseQuery.mockReturnValue({
+      data: { data: mockDevices },
+      isLoading: false,
+      isError: false,
+    });
 
     render(<DeviceCombobox value={null} onChange={onChange} disabled />);
 
@@ -156,7 +178,11 @@ describe("DeviceCombobox", () => {
   });
 
   it("renders 'No device found.' when list is empty", () => {
-    mockUseQuery.mockReturnValue({ data: [], isLoading: false });
+    mockUseQuery.mockReturnValue({
+      data: { data: [] },
+      isLoading: false,
+      isError: false,
+    });
 
     render(<DeviceCombobox value={null} onChange={jest.fn()} />);
     expect(screen.getByText("No device found.")).toBeInTheDocument();

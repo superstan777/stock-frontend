@@ -11,7 +11,8 @@ export const getWorknotes = async (
   }
 
   const data = await res.json();
-  return data.data ?? data;
+
+  return data.data;
 };
 
 export const addWorknote = async (

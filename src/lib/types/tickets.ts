@@ -2,7 +2,7 @@ import type { ChartBarData } from "@/components/ui/chart-bar-default";
 import type { EntityFilter } from "./common";
 
 export type TicketRow = {
-  assigned_to: string | null;
+  operator_id: string | null;
   caller_id: string | null;
   created_at: string;
   description: string | null;
@@ -14,7 +14,7 @@ export type TicketRow = {
   title: string;
 };
 export type TicketInsert = {
-  assigned_to?: string | null | undefined;
+  operator_id?: string | null | undefined;
   caller_id?: string | null | undefined;
   created_at?: string | undefined;
   description?: string | null | undefined;
@@ -26,7 +26,7 @@ export type TicketInsert = {
   title: string;
 };
 export type TicketUpdate = {
-  assigned_to?: string | null | undefined;
+  operator_id?: string | null | undefined;
   caller_id?: string | null | undefined;
   created_at?: string | undefined;
   description?: string | null | undefined;
@@ -38,9 +38,9 @@ export type TicketUpdate = {
   title?: string | undefined;
 };
 
-export type TicketWithUsers = Omit<TicketRow, "caller_id" | "assigned_to"> & {
+export type TicketWithUsers = Omit<TicketRow, "caller_id" | "operator_id"> & {
   caller: { id: string; email: string | null } | null;
-  assigned_to: { id: string; email: string | null } | null;
+  operator: { id: string; email: string | null } | null;
 };
 
 export interface TicketsStats extends ChartBarData {
@@ -66,11 +66,19 @@ export type TicketStatus =
   | "resolved"
   | "cancelled";
 
-type AllTicketKeys = keyof TicketRow;
+type AllTicketKeys = keyof TicketWithUsers;
 
-export type TicketFilterKeyType = Exclude<
-  AllTicketKeys,
-  "id" | "created_at" | "description" | "caller_id"
+export type TicketFilterKeyType = Extract<
+  AllTicketKeys | "caller.email" | "operator.email",
+  | "number"
+  | "title"
+  | "status"
+  | "caller.email"
+  | "operator.email"
+  | "estimated_resolution_date"
+  | "resolution_date"
 >;
 
-export type TicketFilter = EntityFilter<TicketFilterKeyType>;
+export type TicketQueryKeyType = TicketFilterKeyType | "caller.id";
+
+export type TicketFilter = EntityFilter<TicketQueryKeyType>;

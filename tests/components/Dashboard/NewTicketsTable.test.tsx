@@ -18,8 +18,8 @@ jest.mock("@/components/ListPage/DataTable", () => ({
 }));
 
 const mockData = [
-  { id: "1", title: "Test Ticket 1", status: "New" },
-  { id: "2", title: "Test Ticket 2", status: "New" },
+  { id: "1", title: "Test Ticket 1", status: "new" },
+  { id: "2", title: "Test Ticket 2", status: "new" },
 ];
 
 describe("NewTicketsTable", () => {
@@ -57,7 +57,7 @@ describe("NewTicketsTable", () => {
 
   it("renders DataTable with data", async () => {
     (useQuery as jest.Mock).mockReturnValue({
-      data: mockData,
+      data: { data: mockData },
       isLoading: false,
       error: null,
     });

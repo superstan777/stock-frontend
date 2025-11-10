@@ -19,7 +19,7 @@ export const NewTicketsTable = () => {
       </CardHeader>
       <CardContent className="px-2 sm:p-6">
         <DataTable
-          data={data?.tickets ?? []}
+          data={data?.data}
           isLoading={isLoading}
           error={error}
           columns={TICKET_COLUMNS}

@@ -30,7 +30,6 @@ export const WorknotesSection: React.FC<WorknotesSectionProps> = ({
     <div className="mt-6">
       <h3 className="text-lg font-semibold mb-3">Worknotes</h3>
 
-      {/* --- TEXTAREA --- */}
       <div className="mb-4">
         <textarea
           className="w-full border rounded-lg p-2 text-sm resize-none"

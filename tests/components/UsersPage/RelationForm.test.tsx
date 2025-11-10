@@ -173,7 +173,7 @@ describe("RelationForm", () => {
       expect(createRelation).toHaveBeenCalledWith({
         user_id: "user1",
         device_id: "device1",
-        start_date: "2025-11-02",
+        start_date: "2025-11-02T00:00:00.000Z",
       });
       expect(toast.success).toHaveBeenCalledWith("Relation has been created");
       expect(mockInvalidateQueries).toHaveBeenCalled();

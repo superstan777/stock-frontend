@@ -33,7 +33,7 @@ jest.mock("@/components/ErrorComponent", () => ({
 describe("TicketsByOperatorChart", () => {
   const mockData = [
     { operator: { id: "1", name: "Alice", email: "alice@test.com" }, count: 5 },
-    { operator: { id: null, name: "Unassigned", email: null }, count: 3 },
+    { operator: { id: null, name: null, email: null }, count: 3 },
   ];
 
   const mockUseQuery = useQuery as jest.Mock;
@@ -88,7 +88,7 @@ describe("TicketsByOperatorChart", () => {
     const props = getChartProps();
     expect(props.data).toEqual([
       { name: "Alice", email: "alice@test.com", count: 5 },
-      { name: "Unassigned", email: null, count: 3 },
+      { name: null, email: null, count: 3 },
     ]);
     expect(props.chartConfig.count.label).toBe("Tickets");
     expect(typeof props.onBarClick).toBe("function");
@@ -123,7 +123,7 @@ describe("TicketsByOperatorChart", () => {
       const url = new URL(pushedUrl, "http://localhost");
       expect(url.searchParams.get("assigned_to.email")).toBe("alice@test.com");
       expect(url.searchParams.get("assigned_to")).toBeNull();
-      expect(url.searchParams.get("status")).toBe("New,On Hold,In Progress");
+      expect(url.searchParams.get("status")).toBe("new,on_hold,in_progress");
       expect(url.searchParams.get("page")).toBe("1");
     });
   });
@@ -145,7 +145,7 @@ describe("TicketsByOperatorChart", () => {
       const url = new URL(pushedUrl, "http://localhost");
       expect(url.searchParams.get("assigned_to")).toBe("null");
       expect(url.searchParams.get("assigned_to.email")).toBeNull();
-      expect(url.searchParams.get("status")).toBe("New,On Hold,In Progress");
+      expect(url.searchParams.get("status")).toBe("new,on_hold,in_progress");
       expect(url.searchParams.get("page")).toBe("1");
     });
   });
